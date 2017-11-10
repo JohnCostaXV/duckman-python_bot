@@ -119,6 +119,7 @@ async def on_message(message):
                         "- `!role`\n"
                         "- `!r_role`\n"
                         "- `!xp`\n"
+                        "- `!lb`\n"
                         "- `!github`\n"
         )
 
@@ -181,6 +182,26 @@ async def on_message(message):
         await client.send_message(message.channel, "Du hast {} XP".format(xp))
 
     user_timer[message.author.id] = time.time()
+    
+    if message.content.lower().startswith("!lb"):
+        msg = "Leaderboard:```\n"
+        
+        counter = 1
+        lb = list(map(lambda m: (m, get_xp(m.id)), message.server.members))
+        lb = lb.sort(key=lambda x: x[1], reverse=True)
+        
+        for element in lb:
+            member = element[0]
+            xp = element[1]
+            msg += f"{counter}. {member.name}: {xp} XP\n"
+            
+            if counter == 20:
+                break
+            else:
+                counter += 1
+        
+        msg += "```"
+        await client.send_message(message.channel, msg)
 
 
 @client.event
