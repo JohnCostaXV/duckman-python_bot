@@ -23,6 +23,7 @@ async def on_ready():
         for member in server.members:
             db.create_user(member.id, member.name)
     print("100%")
+    await client.change_presence(game=discord.Game(name="!help", type=0))
 
 
 @client.event
@@ -96,6 +97,7 @@ async def on_message(message):
                         "- `!role`\n"
                         "- `!r_role`\n"
                         "- `!xp`\n"
+                        "- `!github`\n"
         )
 
         await client.send_message(message.channel, embed=embed)
@@ -119,6 +121,9 @@ async def on_message(message):
         role_msg_user_id = message.author.id
         role_msg_id = msg.id
 
+    if message.content.lower().startswith("!role") and "level2" not in author_levels:
+        await client.send_message(message.channel, "Sorry, du musst mindestens Level 2 sein!")
+
     if message.content.lower().startswith("!r_role") and "level2" in author_levels:
         global r_role_msg_id
         global r_role_msg_user_id
@@ -137,6 +142,9 @@ async def on_message(message):
 
         r_role_msg_user_id = message.author.id
         r_role_msg_id = msg.id
+
+    if message.content.lower().startswith("!r_role") and "level2" not in author_levels:
+        await client.send_message(message.channel, "Sorry, du musst mindestens Level 2 sein!")
 
     if message.content.lower().startswith("!github"):
         embed = discord.Embed(
@@ -237,9 +245,12 @@ def get_xp(user_id: int):
 
 
 def add_level(user_id: int, level: str):
-    levels = db.find_user(user_id)["levels"]
-    levels.append(level)
-    db.update_user(user_id, {"levels": levels})
+    try:
+        levels = db.find_user(user_id)["levels"]
+        levels.append(level)
+        db.update_user(user_id, {"levels": levels})
+    except:
+        pass
 
 
 client.run(BOT_TOKEN)
