@@ -4,6 +4,7 @@ import database
 import random
 import asyncio
 import time
+import urllib.request
 
 client = discord.Client()
 BOT_TOKEN = secret_stuff.bot_token()
@@ -202,6 +203,11 @@ async def on_message(message):
         
         msg += "```"
         await client.send_message(message.channel, msg)
+
+    if message.content.lower().startswith('!update') and message.author.id == "180546607626977280":
+        link = 'https://raw.githubusercontent.com/Grewoss/duckman-python_bot/master/main.py'
+        url = urllib.request.urlretrieve(link, 'main.py')
+        await client.send_message(message.channel, "Ich hab mich geupdatet... Bitte restart!")
 
 
 @client.event
