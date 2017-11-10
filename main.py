@@ -3,6 +3,7 @@ import secret_stuff
 import database
 import random
 import asyncio
+import time
 
 client = discord.Client()
 BOT_TOKEN = secret_stuff.bot_token()
@@ -18,6 +19,8 @@ role_msg_user_id = None
 r_role_msg_id = None
 r_role_msg_user_id = None
 
+user_timer = {}
+
 
 @client.event
 async def on_ready():
@@ -31,7 +34,13 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    add_xp(message.author.id, 2)
+
+    try:
+        if time.time() >= user_timer[message.author.id] + 2:
+            add_xp(message.author.id, 2)
+    except KeyError:
+        add_xp(message.author.id, 2)
+
     author_xp = db.find_user(message.author.id)["xp"]
     author_levels = db.find_user(message.author.id)["levels"]
 
@@ -170,6 +179,8 @@ async def on_message(message):
     if message.content.lower().startswith("!xp"):
         xp = get_xp(message.author.id)
         await client.send_message(message.channel, "Du hast {} XP".format(xp))
+
+    user_timer[message.author.id] = time.time()
 
 
 @client.event
