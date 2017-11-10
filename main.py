@@ -30,6 +30,7 @@ async def on_ready():
     for server in client.servers:
         for member in server.members:
             db.create_user(member.id, member.name)
+    await client.change_presence(game=discord.Game(name="!help", type=0))
     print("100%")
 
 
