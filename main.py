@@ -210,6 +210,9 @@ async def on_message(message):
         url = urllib.request.urlretrieve(link, 'main.py')
         await client.send_message(message.channel, "Ich hab mich geupdatet... Bitte restart!")
 
+    if message.content.lower().startswith('!ping'):
+        await client.send_message(message.channel, "Pong")
+
 
 @client.event
 async def on_reaction_add(reaction, user):
