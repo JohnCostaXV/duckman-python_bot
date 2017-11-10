@@ -188,7 +188,7 @@ async def on_message(message):
         
         counter = 1
         lb = list(map(lambda m: (m, get_xp(m.id)), message.server.members))
-        lb = lb.sort(key=lambda x: x[1], reverse=True)
+        lb.sort(key=lambda x: x[1], reverse=True)
         
         for element in lb:
             member = element[0]
@@ -293,6 +293,7 @@ def add_level(user_id: int, level: str):
         db.update_user(user_id, {"levels": levels})
     except:
         pass
+
 
 client.loop.create_task(random_status())
 client.run(BOT_TOKEN)
