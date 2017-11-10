@@ -10,6 +10,7 @@ db = database.DataBase()
 
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!"]
+USER_GOALS = [90, 100, 110, 120, 130, 140, 150]
 
 role_msg_id = None
 role_msg_user_id = None
@@ -219,20 +220,8 @@ async def on_member_join(member):
     for user in member.server:
         user_count += 1
 
-    if user_count == 90:
-        await client.send_message(general_channel, "Der Server hat so eben 90 User erreicht 🚀")
-    if user_count == 100:
-        await client.send_message(general_channel, "Der Server hat so eben 100 User erreicht 🚀")
-    if user_count == 110:
-        await client.send_message(general_channel, "Der Server hat so eben 110 User erreicht 🚀")
-    if user_count == 120:
-        await client.send_message(general_channel, "Der Server hat so eben 120 User erreicht 🚀")
-    if user_count == 130:
-        await client.send_message(general_channel, "Der Server hat so eben 130 User erreicht 🚀")
-    if user_count == 140:
-        await client.send_message(general_channel, "Der Server hat so eben 140 User erreicht 🚀")
-    if user_count == 150:
-        await client.send_message(general_channel, "Der Server hat so eben 150 User erreicht 🚀")
+    if user_count in USER_GOALS:
+        await client.send_message(general_channel, "Der Server hat so eben {} User erreicht 🚀".format(user_count))
 
 
 async def random_status():
