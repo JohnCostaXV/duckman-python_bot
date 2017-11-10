@@ -1,12 +1,15 @@
 import discord
 import secret_stuff
 import database
+import random
+import asyncio
 
 client = discord.Client()
 BOT_TOKEN = secret_stuff.bot_token()
 db = database.DataBase()
 
 BOTCOLOR = 0x547e34
+RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!"]
 
 role_msg_id = None
 role_msg_user_id = None
@@ -23,7 +26,6 @@ async def on_ready():
         for member in server.members:
             db.create_user(member.id, member.name)
     print("100%")
-    await client.change_presence(game=discord.Game(name="!help", type=0))
 
 
 @client.event
@@ -86,6 +88,16 @@ async def on_message(message):
             name="Rewards:",
             value="- Active Role",
             inline=False
+        )
+        await client.send_message(message.channel, embed=embed)
+
+    if author_xp >= 400 and "level4" not in author_levels:
+        add_level(message.author.id, "level4")
+
+        embed = discord.Embed(
+            title="LEVEL UP!!⏫🎉",
+            color=BOTCOLOR,
+            description="{} is now LEVEL 4!".format(message.author.name)
         )
         await client.send_message(message.channel, embed=embed)
 
@@ -223,6 +235,15 @@ async def on_member_join(member):
         await client.send_message(general_channel, "Der Server hat so eben 150 User erreicht 🚀")
 
 
+async def random_status():
+    await client.wait_until_ready()
+    while not client.is_closed:
+        time = random.randint(3600, 21600)
+        await asyncio.sleep(time)
+        choice = random.choice(RANDOM_STATUS)
+        await client.change_presence(game=discord.Game(name=choice, type=0))
+
+
 def add_xp(user_id: int, xp: int):
     try:
         user_data = db.find_user(user_id)
@@ -252,5 +273,5 @@ def add_level(user_id: int, level: str):
     except:
         pass
 
-
+client.loop.create_task(random_status())
 client.run(BOT_TOKEN)
