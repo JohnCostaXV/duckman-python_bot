@@ -12,7 +12,7 @@ db = database.DataBase()
 
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!"]
-USER_GOALS = [90, 100, 110, 120, 130, 140, 150]
+USER_GOALS = [80, 90, 100, 110, 120, 130, 140, 150]
 
 role_msg_id = None
 role_msg_user_id = None
@@ -21,6 +21,7 @@ r_role_msg_id = None
 r_role_msg_user_id = None
 
 user_timer = {}
+user_spam_count = {}
 
 
 @client.event
@@ -39,7 +40,19 @@ async def on_message(message):
 
     try:
         if time.time() >= user_timer[message.author.id] + 2:
-            add_xp(message.author.id, 2)
+            user_spam_count[message.author.id] = 0
+            message_length = len(message.content)
+            if message_length > 5:
+                add_xp(message.author.id, 1)
+            if message_length > 20:
+                add_xp(message.author.id, 2)
+            if message_length > 50:
+                add_xp(message.author.id, 2)
+
+        if time.time() < user_timer[message.author.id] + 2:
+            user_spam_count[message.author.id] += 1
+            if user_spam_count[message.author.id] >= 4:
+                remove_xp(message.author.id, 4)
     except KeyError:
         add_xp(message.author.id, 2)
 
@@ -183,35 +196,36 @@ async def on_message(message):
         xp = get_xp(message.author.id)
         await client.send_message(message.channel, "Du hast {} XP".format(xp))
 
-    user_timer[message.author.id] = time.time()
-    
     if message.content.lower().startswith("!lb"):
         msg = "Leaderboard:```\n"
-        
+
         counter = 1
         lb = list(map(lambda m: (m, get_xp(m.id)), message.server.members))
         lb.sort(key=lambda x: x[1], reverse=True)
-        
+
         for element in lb:
             member = element[0]
             xp = element[1]
             msg += f"{counter}. {member.name}: {xp} XP\n"
-            
+
             if counter == 20:
                 break
             else:
                 counter += 1
-        
+
         msg += "```"
         await client.send_message(message.channel, msg)
 
-    if message.content.lower().startswith('!update') and message.author.id == "180546607626977280":
-        link = 'https://raw.githubusercontent.com/Grewoss/duckman-python_bot/master/main.py'
-        url = urllib.request.urlretrieve(link, 'main.py')
-        await client.send_message(message.channel, "Ich hab mich geupdatet... Bitte restart!")
+    # TODO Irgendwie zum worken bringen. Funktioniert zur zeit nicht auf dem Raspberry :/
+    # if message.content.lower().startswith('!update') and message.author.id == "180546607626977280":
+    #     link = 'https://raw.githubusercontent.com/Grewoss/duckman-python_bot/master/main.py'
+    #     url = urllib.request.urlretrieve(link, 'main.py')
+    #     await client.send_message(message.channel, "Ich hab mich geupdatet... Bitte restart!")
 
     if message.content.lower().startswith('!ping'):
         await client.send_message(message.channel, "Pong")
+
+    user_timer[message.author.id] = time.time()
 
 
 @client.event
@@ -259,7 +273,7 @@ async def on_member_join(member):
     general_channel = discord.Object('316177775239102464')
     await client.send_message(log_channel, "Willkomen {} auf unserem Server! 😊".format(member.mention))
 
-    for user in member.server:
+    for user in member.servers:
         user_count += 1
 
     if user_count in USER_GOALS:
@@ -280,6 +294,18 @@ def add_xp(user_id: int, xp: int):
         user_data = db.find_user(user_id)
         before_xp = user_data["xp"]
         after_xp = before_xp + xp
+        db.update_user(user_id, {"xp": after_xp})
+        return after_xp
+    except:
+        db.update_user(user_id, {"xp": xp})
+        return xp
+
+
+def remove_xp(user_id: int, xp: int):
+    try:
+        user_data = db.find_user(user_id)
+        before_xp = user_data["xp"]
+        after_xp = before_xp - xp
         db.update_user(user_id, {"xp": after_xp})
         return after_xp
     except:
