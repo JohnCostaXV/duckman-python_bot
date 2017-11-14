@@ -10,14 +10,11 @@ BOT_TOKEN = secret_stuff.bot_token()
 db = database.DataBase()
 
 BOTCOLOR = 0x547e34
-RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!"]
+RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck"]
 USER_GOALS = [80, 90, 100, 110, 120, 130, 140, 150]
 
-role_msg_id = None
-role_msg_user_id = None
 
-r_role_msg_id = None
-r_role_msg_user_id = None
+reaction_msg_stuff = {"role_msg_id": None, "role_msg_user_id": None, "r_role_msg_id": None, "r_role_msg_user_id": None}
 
 user_timer = {}
 user_spam_count = {}
@@ -153,9 +150,6 @@ async def on_message(message):
         await client.send_message(message.channel, embed=embed)
 
     if message.content.lower().startswith("!role") and "level2" in author_levels:
-        global role_msg_id
-        global role_msg_user_id
-
         embed = discord.Embed(
             title="Available Roles:",
             color=BOTCOLOR,
@@ -168,16 +162,13 @@ async def on_message(message):
         await client.add_reaction(msg, "🎮")
         await client.add_reaction(msg, "🎨")
 
-        role_msg_user_id = message.author.id
-        role_msg_id = msg.id
+        reaction_msg_stuff["role_msg_user_id"] = message.author.id
+        reaction_msg_stuff["role_msg_id"] = msg.id
 
     if message.content.lower().startswith("!role") and "level2" not in author_levels:
         await client.send_message(message.channel, "Sorry, du musst mindestens Level 2 sein!")
 
     if message.content.lower().startswith("!r_role") and "level2" in author_levels:
-        global r_role_msg_id
-        global r_role_msg_user_id
-
         embed = discord.Embed(
             title="Remove Role:",
             color=BOTCOLOR,
@@ -190,8 +181,8 @@ async def on_message(message):
         await client.add_reaction(msg, "🎮")
         await client.add_reaction(msg, "🎨")
 
-        r_role_msg_user_id = message.author.id
-        r_role_msg_id = msg.id
+        reaction_msg_stuff["r_role_msg_user_id"] = message.author.id
+        reaction_msg_stuff["r_role_msg_id"] = msg.id
 
     if message.content.lower().startswith("!r_role") and "level2" not in author_levels:
         await client.send_message(message.channel, "Sorry, du musst mindestens Level 2 sein!")
@@ -243,33 +234,33 @@ async def on_reaction_add(reaction, user):
     msgid = reaction.message.id
 
     # ADD ROLES
-    if reaction.emoji == '🐤' and msgid == role_msg_id and user.id == role_msg_user_id:
+    if reaction.emoji == '🐤' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
         for role in reaction.message.server.roles:
             if role.name.lower() == "programmer":
                 await client.add_roles(user, role)
 
-    if reaction.emoji == '🎮' and msgid == role_msg_id and user.id == role_msg_user_id:
+    if reaction.emoji == '🎮' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
         for role in reaction.message.server.roles:
             if role.name.lower() == "gamer":
                 await client.add_roles(user, role)
 
-    if reaction.emoji == '🎨' and msgid == role_msg_id and user.id == role_msg_user_id:
+    if reaction.emoji == '🎨' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
         for role in reaction.message.server.roles:
             if role.name.lower() == "designer":
                 await client.add_roles(user, role)
 
     # REMOVE ROLES
-    if reaction.emoji == '🐤' and msgid == r_role_msg_id and user.id == r_role_msg_user_id:
+    if reaction.emoji == '🐤' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
         for role in reaction.message.server.roles:
             if role.name.lower() == "programmer":
                 await client.remove_roles(user, role)
 
-    if reaction.emoji == '🎮' and msgid == r_role_msg_id and user.id == r_role_msg_user_id:
+    if reaction.emoji == '🎮' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
         for role in reaction.message.server.roles:
             if role.name.lower() == "gamer":
                 await client.remove_roles(user, role)
 
-    if reaction.emoji == '🎨' and msgid == r_role_msg_id and user.id == r_role_msg_user_id:
+    if reaction.emoji == '🎨' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
         for role in reaction.message.server.roles:
             if role.name.lower() == "designer":
                 await client.remove_roles(user, role)
