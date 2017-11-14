@@ -4,7 +4,6 @@ import database
 import random
 import asyncio
 import time
-import urllib.request
 
 client = discord.Client()
 BOT_TOKEN = secret_stuff.bot_token()
@@ -44,15 +43,18 @@ async def on_message(message):
             message_length = len(message.content)
             if message_length > 5:
                 add_xp(message.author.id, 1)
-            if message_length > 20:
-                add_xp(message.author.id, 2)
             if message_length > 50:
+                add_xp(message.author.id, 2)
+            if message_length > 150:
                 add_xp(message.author.id, 2)
 
         if time.time() < user_timer[message.author.id] + 2:
             user_spam_count[message.author.id] += 1
             if user_spam_count[message.author.id] >= 4:
                 remove_xp(message.author.id, 4)
+            if user_spam_count[message.author.id] >= 10:
+                remove_xp(message.author.id, 6)
+
     except KeyError:
         add_xp(message.author.id, 2)
 
@@ -116,13 +118,23 @@ async def on_message(message):
         )
         await client.send_message(message.channel, embed=embed)
 
-    if author_xp >= 400 and "level4" not in author_levels:
-        add_level(message.author.id, "level4")
+    if author_xp >= 400 and "level5" not in author_levels:
+        add_level(message.author.id, "level5")
 
         embed = discord.Embed(
             title="LEVEL UP!!⏫🎉",
             color=BOTCOLOR,
-            description="{} is now LEVEL 4!".format(message.author.name)
+            description="{} is now LEVEL 5!".format(message.author.name)
+        )
+        await client.send_message(message.channel, embed=embed)
+
+    if author_xp >= 800 and "level6" not in author_levels:
+        add_level(message.author.id, "level6")
+
+        embed = discord.Embed(
+            title="LEVEL UP!!⏫🎉",
+            color=BOTCOLOR,
+            description="{} is now LEVEL 6!".format(message.author.name)
         )
         await client.send_message(message.channel, embed=embed)
 
@@ -197,30 +209,28 @@ async def on_message(message):
         await client.send_message(message.channel, "Du hast {} XP".format(xp))
 
     if message.content.lower().startswith("!lb"):
-        msg = "Leaderboard:```\n"
+        try:
+            lb_data_msg = await client.send_message(message.channel, "Sammel Leaderboard Daten")
+            msg = "Leaderboard:```\n"
+            data = db.get_all()
+            counter = 1
+            # lb = list(map(lambda m: (m, get_xp(m.id)), message.server.members))
 
-        counter = 1
-        lb = list(map(lambda m: (m, get_xp(m.id)), message.server.members))
-        lb.sort(key=lambda x: x[1], reverse=True)
-
-        for element in lb:
-            member = element[0]
-            xp = element[1]
-            msg += f"{counter}. {member.name}: {xp} XP\n"
-
-            if counter == 20:
-                break
-            else:
-                counter += 1
-
-        msg += "```"
-        await client.send_message(message.channel, msg)
-
-    # TODO Irgendwie zum worken bringen. Funktioniert zur zeit nicht auf dem Raspberry :/
-    # if message.content.lower().startswith('!update') and message.author.id == "180546607626977280":
-    #     link = 'https://raw.githubusercontent.com/Grewoss/duckman-python_bot/master/main.py'
-    #     url = urllib.request.urlretrieve(link, 'main.py')
-    #     await client.send_message(message.channel, "Ich hab mich geupdatet... Bitte restart!")
+            lb = list(map(lambda m: (m, data[m.id]["xp"]), message.server.members))
+            lb.sort(key=lambda x: x[1], reverse=True)
+            for element in lb:
+                member = element[0]
+                xp = element[1]
+                msg += f"{counter}. {member.name}: {xp} XP\n"
+                if counter == 20:
+                    break
+                else:
+                    counter += 1
+            msg += "```"
+            await client.send_message(message.channel, msg)
+            await client.delete_message(lb_data_msg)
+        except:
+            await client.send_message(message.channel, "Ups, ich kann das Leaderboard nicht laden...")
 
     if message.content.lower().startswith('!ping'):
         await client.send_message(message.channel, "Pong")

@@ -34,11 +34,26 @@ class DataBase:
             return None
 
     def update_user(self, user_id: int, change_dict: dict):
-        update = user_base.update_one({
-            "_id": user_id}, {
-                "$set": change_dict
-            })
-        return update
+        try:
+            update = user_base.update_one({
+                "_id": user_id}, {
+                    "$set": change_dict
+                })
+            return update
+        except Exception as e:
+            print(e)
+            return None
+
+    def get_all(self):
+        try:
+            data = user_base.find()
+            r_data = {}
+            for d in data:
+                r_data[d["_id"]] = d
+            return r_data
+        except Exception as e:
+            print(e)
+            return None
 
     def deleted_user_base(self):
         result = user_base.delete_many({})
