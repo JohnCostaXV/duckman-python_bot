@@ -1,8 +1,6 @@
 import pymongo
 import secret_stuff
 
-print("DataBase started")
-
 client = pymongo.MongoClient(secret_stuff.database_token())
 
 discord_db = client.discord_db
@@ -58,3 +56,6 @@ class DataBase:
     def deleted_user_base(self):
         result = user_base.delete_many({})
         return result
+
+
+print("DataBase started")

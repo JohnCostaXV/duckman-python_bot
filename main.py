@@ -24,10 +24,13 @@ user_spam_count = {}
 async def on_ready():
     print(client.user.name)
     print("================")
-    for server in client.servers:
-        for member in server.members:
-            db.create_user(member.id, member.name)
-    await client.change_presence(game=discord.Game(name="!help", type=0))
+    try:
+        for server in client.servers:
+            for member in server.members:
+                db.create_user(member.id, member.name)
+        await client.change_presence(game=discord.Game(name="!help", type=0))
+    except Exception as e:
+        print("Error {}".format(e))
     print("100%")
 
 
@@ -69,6 +72,9 @@ async def on_message(message):
 
         await client.send_message(message.channel, embed=embed)
 
+    if author_xp < 10 and "level1" in author_levels:
+        remove_level(message.author.id, "level1")
+
     if author_xp >= 50 and "level2" not in author_levels:
         add_level(message.author.id, "level2")
 
@@ -86,6 +92,12 @@ async def on_message(message):
 
         await client.send_message(message.channel, embed=embed)
 
+    if author_xp < 50 and "level2" in author_levels:
+        remove_level(message.author.id, "level2")
+        for role in message.author.roles:
+            if role.name.lower() == "programmer" or role.name.lower() == "designer" or role.name.lower() == "gamer":
+                await client.remove_roles(message.author, role)
+
     if author_xp >= 100 and "level3" not in author_levels:
         add_level(message.author.id, "level3")
 
@@ -95,6 +107,9 @@ async def on_message(message):
             description="{} is now LEVEL 3!".format(message.author.name)
         )
         await client.send_message(message.channel, embed=embed)
+
+    if author_xp < 100 and "level3" in author_levels:
+        remove_level(message.author.id, "level3")
 
     if author_xp >= 200 and "level4" not in author_levels:
         add_level(message.author.id, "level4")
@@ -115,6 +130,9 @@ async def on_message(message):
         )
         await client.send_message(message.channel, embed=embed)
 
+    if author_xp < 200 and "level4" in author_levels:
+        remove_level(message.author.id, "level4")
+
     if author_xp >= 400 and "level5" not in author_levels:
         add_level(message.author.id, "level5")
 
@@ -125,6 +143,9 @@ async def on_message(message):
         )
         await client.send_message(message.channel, embed=embed)
 
+    if author_xp < 400 and "level5" in author_levels:
+        remove_level(message.author.id, "level5")
+
     if author_xp >= 800 and "level6" not in author_levels:
         add_level(message.author.id, "level6")
 
@@ -134,6 +155,9 @@ async def on_message(message):
             description="{} is now LEVEL 6!".format(message.author.name)
         )
         await client.send_message(message.channel, embed=embed)
+
+    if author_xp < 800 and "level6" in author_levels:
+        remove_level(message.author.id, "level6")
 
     if message.content.lower().startswith("!help"):
         embed = discord.Embed(
@@ -225,6 +249,17 @@ async def on_message(message):
 
     if message.content.lower().startswith('!ping'):
         await client.send_message(message.channel, "Pong")
+
+    if message.content.lower().startswith('!remove_xp') and message.author.id == "180546607626977280":
+        text_in = message.content
+        text_out = text_in[text_in.find("(") + 1:text_in.find(")")]
+
+        for user in message.mentions:
+            try:
+                remove_xp(user.id, int(text_out))
+                await client.send_message(message.channel, "Removed {} xp from {}".format(text_out, user.name))
+            except:
+                await client.send_message(message.author, "Failed to remove xp from {}".format(user.name))
 
     user_timer[message.author.id] = time.time()
 
@@ -327,6 +362,15 @@ def add_level(user_id: int, level: str):
     try:
         levels = db.find_user(user_id)["levels"]
         levels.append(level)
+        db.update_user(user_id, {"levels": levels})
+    except:
+        pass
+
+
+def remove_level(user_id: int, level: str):
+    try:
+        levels = db.find_user(user_id)["levels"]
+        levels.remove(level)
         db.update_user(user_id, {"levels": levels})
     except:
         pass
