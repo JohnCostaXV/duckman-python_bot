@@ -16,6 +16,8 @@ USER_GOALS = [80, 90, 100, 110, 120, 130, 140, 150]
 
 reaction_msg_stuff = {"role_msg_id": None, "role_msg_user_id": None, "r_role_msg_id": None, "r_role_msg_user_id": None}
 
+gamble_msg_stuff = {"gamble_msg_id": None, "gamble_msg_user_id": None}
+
 user_timer = {}
 user_spam_count = {}
 
@@ -163,12 +165,16 @@ async def on_message(message):
         embed = discord.Embed(
             title="Current Commands",
             color=BOTCOLOR,
-            description="- `!help`\n"
-                        "- `!role`\n"
-                        "- `!r_role`\n"
-                        "- `!xp`\n"
-                        "- `!lb`\n"
-                        "- `!github`\n"
+            description="```\n"
+                        "- !help\n"
+                        "- !role\n"
+                        "- !r_role\n"
+                        "- !xp\n"
+                        "- !lb\n"
+                        "- !github\n"
+                        "- !ping\n"
+                        "- !gamble\n"
+                        "```"
         )
 
         await client.send_message(message.channel, embed=embed)
@@ -226,7 +232,7 @@ async def on_message(message):
     if message.content.lower().startswith("!lb"):
         try:
             lb_data_msg = await client.send_message(message.channel, "Sammel Leaderboard Daten")
-            msg = "Leaderboard:```\n"
+            leaderboard_str = "```\n"
             data = db.get_all()
             counter = 1
             # lb = list(map(lambda m: (m, get_xp(m.id)), message.server.members))
@@ -236,16 +242,21 @@ async def on_message(message):
             for element in lb:
                 member = element[0]
                 xp = element[1]
-                msg += f"{counter}. {member.name}: {xp} XP\n"
+                leaderboard_str += f"{counter}. {member.name}: {xp} XP\n"
                 if counter == 20:
                     break
                 else:
                     counter += 1
-            msg += "```"
-            await client.send_message(message.channel, msg)
+            leaderboard_str += "```"
+            embed = discord.Embed(
+                title="Leaderboard",
+                color=BOTCOLOR,
+                description=leaderboard_str
+            )
+            await client.send_message(message.channel, embed=embed)
             await client.delete_message(lb_data_msg)
-        except:
-            await client.send_message(message.channel, "Ups, ich kann das Leaderboard nicht laden...")
+        except Exception as e:
+            await fix_error(message.channel, e)
 
     if message.content.lower().startswith('!ping'):
         await client.send_message(message.channel, "Pong")
@@ -261,44 +272,125 @@ async def on_message(message):
             except:
                 await client.send_message(message.author, "Failed to remove xp from {}".format(user.name))
 
+    if message.content.lower().startswith('!gamble'):
+        try:
+            value = int(message.content.lower().replace('!gamble', "").replace(" ", ""))
+
+            if author_xp < value:
+                await client.send_message(message.channel, "Sorry, du hast nicht genug XP.")
+            if author_xp >= value:
+                embed = discord.Embed(
+                    title="Gamble Game:",
+                    color=BOTCOLOR,
+                    description="- 10% = 🐤`\n"
+                                "- 45% = 🔵\n"
+                                "- 45% = 🔴"
+                )
+                msg = await client.send_message(message.channel, embed=embed)
+                await client.add_reaction(msg, "🐤")
+                await client.add_reaction(msg, "🔵")
+                await client.add_reaction(msg, "🔴")
+
+                gamble_msg_stuff["gamble_msg_id"] = msg.id
+                gamble_msg_stuff["gamble_msg_user_id"] = message.author.id
+                gamble_msg_stuff[message.author.id] = value
+        except ValueError:
+            await client.send_message(message.channel, "Bitte benutze nur Zahlen. Example: `!gamble 20`")
+        except Exception as e:
+            await fix_error(message.channel, e)
+
     user_timer[message.author.id] = time.time()
 
 
 @client.event
 async def on_reaction_add(reaction, user):
     msgid = reaction.message.id
+    try:
+        # ADD ROLES
+        if reaction.emoji == '🐤' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
+            for role in reaction.message.server.roles:
+                if role.name.lower() == "programmer":
+                    await client.add_roles(user, role)
 
-    # ADD ROLES
-    if reaction.emoji == '🐤' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
-        for role in reaction.message.server.roles:
-            if role.name.lower() == "programmer":
-                await client.add_roles(user, role)
+        if reaction.emoji == '🎮' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
+            for role in reaction.message.server.roles:
+                if role.name.lower() == "gamer":
+                    await client.add_roles(user, role)
 
-    if reaction.emoji == '🎮' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
-        for role in reaction.message.server.roles:
-            if role.name.lower() == "gamer":
-                await client.add_roles(user, role)
+        if reaction.emoji == '🎨' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
+            for role in reaction.message.server.roles:
+                if role.name.lower() == "designer":
+                    await client.add_roles(user, role)
 
-    if reaction.emoji == '🎨' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
-        for role in reaction.message.server.roles:
-            if role.name.lower() == "designer":
-                await client.add_roles(user, role)
+        # REMOVE ROLES
+        if reaction.emoji == '🐤' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
+            for role in reaction.message.server.roles:
+                if role.name.lower() == "programmer":
+                    await client.remove_roles(user, role)
 
-    # REMOVE ROLES
-    if reaction.emoji == '🐤' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
-        for role in reaction.message.server.roles:
-            if role.name.lower() == "programmer":
-                await client.remove_roles(user, role)
+        if reaction.emoji == '🎮' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
+            for role in reaction.message.server.roles:
+                if role.name.lower() == "gamer":
+                    await client.remove_roles(user, role)
 
-    if reaction.emoji == '🎮' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
-        for role in reaction.message.server.roles:
-            if role.name.lower() == "gamer":
-                await client.remove_roles(user, role)
+        if reaction.emoji == '🎨' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
+            for role in reaction.message.server.roles:
+                if role.name.lower() == "designer":
+                    await client.remove_roles(user, role)
 
-    if reaction.emoji == '🎨' and msgid == reaction_msg_stuff["r_role_msg_id"] and user.id == reaction_msg_stuff["r_role_msg_user_id"]:
-        for role in reaction.message.server.roles:
-            if role.name.lower() == "designer":
-                await client.remove_roles(user, role)
+        if reaction.emoji == "🐤" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
+            value = gamble_msg_stuff[user.id]
+            remove_xp(user.id, value)
+            won_value = value * 10
+            add_xp(user.id, won_value)
+
+            gamble_msg_stuff["gamble_msg_user_id"] = None
+            win = random.randint(0, 19)
+            if win in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+                await won_gamble(False, reaction.message.channel, reaction.emoji)
+            if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
+                await won_gamble(False, reaction.message.channel, reaction.emoji)
+            if win in [18, 19]:
+                await won_gamble(True, reaction.message.channel, reaction.emoji)
+                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value))
+                won_value = value * 2
+                add_xp(user.id, won_value)
+
+        if reaction.emoji == "🔵" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
+            value = gamble_msg_stuff[user.id]
+            remove_xp(user.id, value)
+
+            gamble_msg_stuff["gamble_msg_user_id"] = None
+            win = random.randint(0, 19)
+            if win in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+                await won_gamble(True, reaction.message.channel, reaction.emoji)
+                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value))
+                won_value = value * 2
+                add_xp(user.id, won_value)
+            if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
+                await won_gamble(False, reaction.message.channel, reaction.emoji)
+            if win in [18, 19]:
+                await won_gamble(False, reaction.message.channel, reaction.emoji)
+
+        if reaction.emoji == "🔴" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
+            value = gamble_msg_stuff[user.id]
+            remove_xp(user.id, value)
+            won_value = value * 2
+            add_xp(user.id, won_value)
+
+            gamble_msg_stuff["gamble_msg_user_id"] = None
+            win = random.randint(0, 19)
+            if win in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+                await won_gamble(False, reaction.message.channel, reaction.emoji)
+            if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
+                await won_gamble(True, reaction.message.channel, reaction.emoji)
+                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value))
+                won_value = value * 2
+                add_xp(user.id, won_value)
+            if win in [18, 19]:
+                await won_gamble(False, reaction.message.channel, reaction.emoji)
+    except Exception as e:
+        await fix_error(reaction.message.channel, e)
 
 
 @client.event
@@ -323,6 +415,78 @@ async def random_status():
         await asyncio.sleep(time)
         choice = random.choice(RANDOM_STATUS)
         await client.change_presence(game=discord.Game(name=choice, type=0))
+
+
+async def fix_error(channel, error):
+    embed = discord.Embed(
+        title="ERROR",
+        color=BOTCOLOR,
+        description="Hier ist der Error, versuch ihn zu fixen! ```{}```".format(error)
+    )
+    embed.add_field(
+        name="Hier ist der GitHub Link.",
+        value="https://github.com/Grewoss/duckman-python_bot"
+    )
+    await client.send_message(channel, embed=embed)
+
+
+async def won_gamble(won: bool, channel, emoji):
+    if won:
+        embed1 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔵🔵🔴🔵🔴\n🔳🔳🔼🔳🔳")
+        embed2 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔵🔴🔵🔴🔴\n🔳🔳🔼🔳🔳")
+        embed3 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔴🔵🔴🔴🐤\n🔳🔳🔼🔳🔳")
+        embed4 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔵🔴🔴🐤{}\n🔳🔳🔼🔳🔳".format(emoji))
+        embed5 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔴🔴🐤{}🔵\n🔳🔳🔼🔳🔳".format(emoji))
+        embed6 = discord.Embed(title="YOU WON!", color=BOTCOLOR, description="🔴🐤{}🔵🔴\n🔳🔳🔼🔳🔳".format(emoji))
+        gamble_msg = await client.send_message(channel, embed=embed1)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed2)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed3)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed4)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed5)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed6)
+    if not won:
+        loose_emoji = '🔴'
+        if emoji == '🐤':
+            ranint = random.randint(0, 1)
+            if ranint == 0:
+                loose_emoji = '🔵'
+            else:
+                loose_emoji = '🔴'
+        if emoji == '🔴':
+            ranint = random.randint(0, 1)
+            if ranint == 0:
+                loose_emoji = '🔵'
+            else:
+                loose_emoji = '🐤'
+        if emoji == '🔵':
+            ranint = random.randint(0, 1)
+            if ranint == 0:
+                loose_emoji = '🐤'
+            else:
+                loose_emoji = '🔴'
+
+        embed1 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔵🔴🔵🔵🐤\n🔳🔳🔼🔳🔳")
+        embed2 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔴🔵🔵🐤🔵\n🔳🔳🔼🔳🔳")
+        embed3 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔵🔵🐤🔵🔴\n🔳🔳🔼🔳🔳")
+        embed4 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🔵🐤🔵🔴{}\n🔳🔳🔼🔳🔳".format(loose_emoji))
+        embed5 = discord.Embed(title="GAMBLE!", color=BOTCOLOR, description="🐤🔵🔴{}🔵\n🔳🔳🔼🔳🔳".format(loose_emoji))
+        embed6 = discord.Embed(title="YOU LOOSE!", color=BOTCOLOR, description="🔵🔴{}🔵🔴\n🔳🔳🔼🔳🔳".format(loose_emoji))
+        gamble_msg = await client.send_message(channel, embed=embed1)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed2)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed3)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed4)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed5)
+        await asyncio.sleep(0.5)
+        await client.edit_message(gamble_msg, embed=embed6)
 
 
 def add_xp(user_id: int, xp: int):
