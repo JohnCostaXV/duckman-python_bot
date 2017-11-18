@@ -54,112 +54,119 @@ async def on_message(message):
             user_spam_count[message.author.id] += 1
             if user_spam_count[message.author.id] >= 4:
                 remove_xp(message.author.id, 4)
+                await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) fuers spammen!!")
             if user_spam_count[message.author.id] >= 10:
                 remove_xp(message.author.id, 6)
 
     except KeyError:
         add_xp(message.author.id, 2)
 
+    except Exception as e:
+        fix_error(message.channel, e)
+
     author_xp = db.find_user(message.author.id)["xp"]
     author_levels = db.find_user(message.author.id)["levels"]
 
-    if author_xp >= 10 and "level1" not in author_levels:
-        add_level(message.author.id, "level1")
+    try:
+        if author_xp >= 10 and "level1" not in author_levels:
+            add_level(message.author.id, "level1")
 
-        embed = discord.Embed(
-            title="LEVEL UP!!⏫🎉",
-            color=BOTCOLOR,
-            description="{} is now LEVEL 1!".format(message.author.name)
-        )
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 1!".format(message.author.name)
+            )
 
-        await client.send_message(message.channel, embed=embed)
+            await client.send_message(message.channel, embed=embed)
 
-    if author_xp < 10 and "level1" in author_levels:
-        remove_level(message.author.id, "level1")
+        if author_xp < 10 and "level1" in author_levels:
+            remove_level(message.author.id, "level1")
 
-    if author_xp >= 50 and "level2" not in author_levels:
-        add_level(message.author.id, "level2")
+        if author_xp >= 50 and "level2" not in author_levels:
+            add_level(message.author.id, "level2")
 
-        embed = discord.Embed(
-            title="LEVEL UP!!⏫🎉",
-            color=BOTCOLOR,
-            description="{} is now LEVEL 2!".format(message.author.name)
-        )
-        embed.add_field(
-            name="Rewards:",
-            value="- Ability to set your Roles with `!role`.\n"
-                  "Available roles: Programmer, Gamer, Designer",
-            inline=False
-        )
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 2!".format(message.author.name)
+            )
+            embed.add_field(
+                name="Rewards:",
+                value="- Ability to set your Roles with `!role`.\n"
+                      "Available roles: Programmer, Gamer, Designer",
+                inline=False
+            )
 
-        await client.send_message(message.channel, embed=embed)
+            await client.send_message(message.channel, embed=embed)
 
-    if author_xp < 50 and "level2" in author_levels:
-        remove_level(message.author.id, "level2")
-        for role in message.author.roles:
-            if role.name.lower() == "programmer" or role.name.lower() == "designer" or role.name.lower() == "gamer":
-                await client.remove_roles(message.author, role)
+        if author_xp < 50 and "level2" in author_levels:
+            remove_level(message.author.id, "level2")
+            for role in message.author.roles:
+                if role.name.lower() == "programmer" or role.name.lower() == "designer" or role.name.lower() == "gamer":
+                    await client.remove_roles(message.author, role)
 
-    if author_xp >= 100 and "level3" not in author_levels:
-        add_level(message.author.id, "level3")
+        if author_xp >= 100 and "level3" not in author_levels:
+            add_level(message.author.id, "level3")
 
-        embed = discord.Embed(
-            title="LEVEL UP!!⏫🎉",
-            color=BOTCOLOR,
-            description="{} is now LEVEL 3!".format(message.author.name)
-        )
-        await client.send_message(message.channel, embed=embed)
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 3!".format(message.author.name)
+            )
+            await client.send_message(message.channel, embed=embed)
 
-    if author_xp < 100 and "level3" in author_levels:
-        remove_level(message.author.id, "level3")
+        if author_xp < 100 and "level3" in author_levels:
+            remove_level(message.author.id, "level3")
 
-    if author_xp >= 200 and "level4" not in author_levels:
-        add_level(message.author.id, "level4")
+        if author_xp >= 200 and "level4" not in author_levels:
+            add_level(message.author.id, "level4")
 
-        for role in message.server.roles:
-            if role.name.lower() == "active":
-                await client.add_roles(message.author, role)
+            for role in message.server.roles:
+                if role.name.lower() == "active":
+                    await client.add_roles(message.author, role)
 
-        embed = discord.Embed(
-            title="LEVEL UP!!⏫🎉",
-            color=BOTCOLOR,
-            description="{} is now LEVEL 4!".format(message.author.name)
-        )
-        embed.add_field(
-            name="Rewards:",
-            value="- Active Role",
-            inline=False
-        )
-        await client.send_message(message.channel, embed=embed)
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 4!".format(message.author.name)
+            )
+            embed.add_field(
+                name="Rewards:",
+                value="- Active Role",
+                inline=False
+            )
+            await client.send_message(message.channel, embed=embed)
 
-    if author_xp < 200 and "level4" in author_levels:
-        remove_level(message.author.id, "level4")
+        if author_xp < 200 and "level4" in author_levels:
+            remove_level(message.author.id, "level4")
 
-    if author_xp >= 400 and "level5" not in author_levels:
-        add_level(message.author.id, "level5")
+        if author_xp >= 400 and "level5" not in author_levels:
+            add_level(message.author.id, "level5")
 
-        embed = discord.Embed(
-            title="LEVEL UP!!⏫🎉",
-            color=BOTCOLOR,
-            description="{} is now LEVEL 5!".format(message.author.name)
-        )
-        await client.send_message(message.channel, embed=embed)
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 5!".format(message.author.name)
+            )
+            await client.send_message(message.channel, embed=embed)
 
-    if author_xp < 400 and "level5" in author_levels:
-        remove_level(message.author.id, "level5")
+        if author_xp < 400 and "level5" in author_levels:
+            remove_level(message.author.id, "level5")
 
-    if author_xp >= 800 and "level6" not in author_levels:
-        add_level(message.author.id, "level6")
+        if author_xp >= 800 and "level6" not in author_levels:
+            add_level(message.author.id, "level6")
 
-        embed = discord.Embed(
-            title="LEVEL UP!!⏫🎉",
-            color=BOTCOLOR,
-            description="{} is now LEVEL 6!".format(message.author.name)
-        )
-        await client.send_message(message.channel, embed=embed)
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 6!".format(message.author.name)
+            )
+            await client.send_message(message.channel, embed=embed)
 
-    if author_xp < 800 and "level6" in author_levels:
-        remove_level(message.author.id, "level6")
+        if author_xp < 800 and "level6" in author_levels:
+            remove_level(message.author.id, "level6")
+    except Exception as e:
+        fix_error(message.channel, e)
 
     if message.content.lower().startswith("!help"):
         embed = discord.Embed(
@@ -282,7 +289,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title="Gamble Game:",
                     color=BOTCOLOR,
-                    description="- 10% = 🐤`\n"
+                    description="- 10% = 🐤\n"
                                 "- 45% = 🔵\n"
                                 "- 45% = 🔴"
                 )
@@ -290,6 +297,7 @@ async def on_message(message):
                 await client.add_reaction(msg, "🐤")
                 await client.add_reaction(msg, "🔵")
                 await client.add_reaction(msg, "🔴")
+                await client.add_reaction(msg, "❔")
 
                 gamble_msg_stuff["gamble_msg_id"] = msg.id
                 gamble_msg_stuff["gamble_msg_user_id"] = message.author.id
@@ -385,6 +393,15 @@ async def on_reaction_add(reaction, user):
                 add_xp(user.id, won_value0)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
+        if reaction.emoji == '❔' and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
+            embed = discord.Embed(
+                title="Gamble Info",
+                color=BOTCOLOR,
+                description="🐤 verzehnfacht deine bezahlten XP.\n"
+                            "🔵 verdoppelt deine bezahlten XP.\n"
+                            "🔴 verdoppelt deine bezahlten XP."
+            )
+            await client.send_message(reaction.message.channel, embed=embed)
     except Exception as e:
         await fix_error(reaction.message.channel, e)
 
