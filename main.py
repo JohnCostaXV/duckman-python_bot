@@ -173,7 +173,7 @@ async def on_message(message):
                         "- !lb\n"
                         "- !github\n"
                         "- !ping\n"
-                        "- !gamble\n"
+                        "- !gamble ~HIER_XP~\n"
                         "```"
         )
 
@@ -341,8 +341,7 @@ async def on_reaction_add(reaction, user):
         if reaction.emoji == "🐤" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
             remove_xp(user.id, value)
-            won_value = value * 10
-            add_xp(user.id, won_value)
+            won_value0 = value * 10
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
@@ -352,21 +351,20 @@ async def on_reaction_add(reaction, user):
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
             if win in [18, 19]:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
-                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value))
-                won_value = value * 2
-                add_xp(user.id, won_value)
+                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value0))
+                add_xp(user.id, won_value0)
 
         if reaction.emoji == "🔵" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
             remove_xp(user.id, value)
+            won_value1 = value * 2
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
             if win in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
-                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value))
-                won_value = value * 2
-                add_xp(user.id, won_value)
+                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value1))
+                add_xp(user.id, won_value1)
             if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
             if win in [18, 19]:
@@ -375,8 +373,7 @@ async def on_reaction_add(reaction, user):
         if reaction.emoji == "🔴" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
             remove_xp(user.id, value)
-            won_value = value * 2
-            add_xp(user.id, won_value)
+            won_value0 = value * 2
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
@@ -384,9 +381,8 @@ async def on_reaction_add(reaction, user):
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
             if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
-                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value))
-                won_value = value * 2
-                add_xp(user.id, won_value)
+                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value0))
+                add_xp(user.id, won_value0)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
     except Exception as e:
