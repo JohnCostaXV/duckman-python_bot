@@ -10,7 +10,8 @@ BOT_TOKEN = secret_stuff.bot_token()
 db = database.DataBase()
 
 BOTCOLOR = 0x547e34
-RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck"]
+RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
+                 , "!github"]
 USER_GOALS = [80, 90, 100, 110, 120, 130, 140, 150]
 
 
@@ -30,7 +31,10 @@ async def on_ready():
         for server in client.servers:
             for member in server.members:
                 db.create_user(member.id, member.name)
-        await client.change_presence(game=discord.Game(name="!help", type=0))
+                if member.id == "180546607626977280":
+                    await client.send_message(member, "Online!")
+        choice = random.choice(RANDOM_STATUS)
+        await client.change_presence(game=discord.Game(name=choice, type=0))
     except Exception as e:
         print("Error {}".format(e))
     print("100%")
@@ -279,7 +283,7 @@ async def on_message(message):
             except:
                 await client.send_message(message.author, "Failed to remove xp from {}".format(user.name))
 
-    if message.content.lower().startswith('!gamble'):
+    if message.content.lower().startswith('!gamble') and message.channel.id == "378612791751475201":
         try:
             value = int(message.content.lower().replace('!gamble', "").replace(" ", ""))
 
@@ -306,6 +310,9 @@ async def on_message(message):
             await client.send_message(message.channel, "Bitte benutze nur Zahlen. Example: `!gamble 20`")
         except Exception as e:
             await fix_error(message.channel, e)
+
+    if message.content.lower().startswith('!gamble') and not message.channel.id == "378612791751475201":
+        await client.send_message(message.channel, "Bitte gamble nur im #Spam channel. :)")
 
     user_timer[message.author.id] = time.time()
 
