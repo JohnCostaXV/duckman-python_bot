@@ -185,6 +185,7 @@ async def on_message(message):
                         "- !github\n"
                         "- !ping\n"
                         "- !gamble ~HIER_XP~\n"
+                        "- !who\n"
                         "```"
         )
 
@@ -271,6 +272,30 @@ async def on_message(message):
 
     if message.content.lower().startswith('!ping'):
         await client.send_message(message.channel, "Pong")
+
+    if message.content.lower().startswith('!who'):
+        user_count = 0
+        for user in message.server.members:
+            user_count += 1
+
+        embed = discord.Embed(
+            title="Server Members:",
+            color=BOTCOLOR,
+            description=user_count
+        )
+
+        await client.send_message(message.channel, embed=embed)
+
+    if message.content.lower().startswith('!add_xp') and message.author.id == "180546607626977280":
+        text_in = message.content
+        text_out = text_in[text_in.find("(") + 1:text_in.find(")")]
+
+        for user in message.mentions:
+            try:
+                add_xp(user.id, int(text_out))
+                await client.send_message(message.channel, "Added {} xp to {}".format(text_out, user.name))
+            except:
+                client.send_message(message.author, "Failed to add xp to {}".format(user.name))
 
     if message.content.lower().startswith('!remove_xp') and message.author.id == "180546607626977280":
         text_in = message.content
@@ -421,7 +446,7 @@ async def on_member_join(member):
     general_channel = discord.Object('316177775239102464')
     await client.send_message(log_channel, "Willkomen {} auf unserem Server! 😊".format(member.mention))
 
-    for user in member.servers:
+    for user in member.server.members:
         user_count += 1
 
     if user_count in USER_GOALS:
