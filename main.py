@@ -274,9 +274,7 @@ async def on_message(message):
         await client.send_message(message.channel, "Pong")
 
     if message.content.lower().startswith('!who'):
-        user_count = 0
-        for user in message.server.members:
-            user_count += 1
+        user_count = len(message.server.members)
 
         embed = discord.Embed(
             title="Server Members:",
@@ -318,9 +316,9 @@ async def on_message(message):
                 embed = discord.Embed(
                     title="Gamble Game:",
                     color=BOTCOLOR,
-                    description="- 10% = 🐤\n"
-                                "- 45% = 🔵\n"
-                                "- 45% = 🔴"
+                    description="- 10% Chance = 🐤\n"
+                                "- 45% Chance = 🔵\n"
+                                "- 45% Chance = 🔴"
                 )
                 msg = await client.send_message(message.channel, embed=embed)
                 await client.add_reaction(msg, "🐤")
@@ -441,13 +439,10 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_member_join(member):
     db.create_user(member.id, member.name)
-    user_count = 0
+    user_count = len(member.server.members)
     log_channel = discord.Object('317560415699599362')
     general_channel = discord.Object('316177775239102464')
     await client.send_message(log_channel, "Willkomen {} auf unserem Server! 😊".format(member.mention))
-
-    for user in member.server.members:
-        user_count += 1
 
     if user_count in USER_GOALS:
         await client.send_message(general_channel, "Der Server hat so eben {} User erreicht 🚀".format(user_count))
