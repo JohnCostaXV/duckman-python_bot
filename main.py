@@ -28,13 +28,15 @@ async def on_ready():
     print(client.user.name)
     print("================")
     try:
+        grewoss = None
         for server in client.servers:
             for member in server.members:
                 db.create_user(member.id, member.name)
                 if member.id == "180546607626977280":
-                    await client.send_message(member, "Online!")
+                    grewoss = member
         choice = random.choice(RANDOM_STATUS)
         await client.change_presence(game=discord.Game(name=choice, type=0))
+        await client.send_message(grewoss, "Online!")
     except Exception as e:
         print("Error {}".format(e))
     print("100%")
@@ -186,6 +188,7 @@ async def on_message(message):
                         "- !ping\n"
                         "- !gamble ~HIER_XP~\n"
                         "- !who\n"
+                        "- !level\n"
                         "```"
         )
 
@@ -337,6 +340,9 @@ async def on_message(message):
     if message.content.lower().startswith('!gamble') and not message.channel.id == "378612791751475201":
         await client.send_message(message.channel, "Bitte gamble nur im #Spam channel. :)")
 
+    if message.content.lower().startswith('!level'):
+        await client.send_message(message.channel, "Du bist Level: `{}`".format(get_level(message.author.id)))
+
     user_timer[message.author.id] = time.time()
 
 
@@ -442,7 +448,7 @@ async def on_member_join(member):
     user_count = len(member.server.members)
     log_channel = discord.Object('317560415699599362')
     general_channel = discord.Object('316177775239102464')
-    await client.send_message(log_channel, "Willkomen {} auf unserem Server! 😊".format(member.mention))
+    await client.send_message(log_channel, "Willkommen {} auf unserem Server! 😊".format(member.mention))
 
     if user_count in USER_GOALS:
         await client.send_message(general_channel, "Der Server hat so eben {} User erreicht 🚀".format(user_count))
@@ -576,6 +582,33 @@ def remove_level(user_id: int, level: str):
         levels = db.find_user(user_id)["levels"]
         levels.remove(level)
         db.update_user(user_id, {"levels": levels})
+    except:
+        pass
+
+
+def get_level(user_id: int):
+    try:
+        levels = db.find_user(user_id)["levels"]
+        if "level1" in levels and "level2" not in levels:
+            return 1
+        if "level2" in levels and "level3" not in levels:
+            return 2
+        if "level3" in levels and "level4" not in levels:
+            return 3
+        if "level4" in levels and "level5" not in levels:
+            return 4
+        if "level5" in levels and "level6" not in levels:
+            return 5
+        if "level6" in levels and "level7" not in levels:
+            return 6
+        if "level7" in levels and "level8" not in levels:
+            return 7
+        if "level8" in levels and "level9" not in levels:
+            return 8
+        if "level9" in levels and "level10" not in levels:
+            return 9
+        if "level10" in levels and "level11" not in levels:
+            return 10
     except:
         pass
 
