@@ -9,7 +9,7 @@ except ModuleNotFoundError:
     print("Please create a secret_stuff.py file, go to github "
           "https://github.com/Grewoss/duckman-python_bot/blob/master/secret_stuff.py "
           "to see an example.")
-    sys.exit(1)
+    sys.exit(0)
 import database
 
 client = discord.Client()
@@ -626,4 +626,4 @@ try:
     client.run(BOT_TOKEN)
 except discord.errors.LoginFailure:
     print(">>>> Please update the Bot Token in secret_stuff.py! <<<<")
-    sys.exit(1)
+    sys.exit(0)

@@ -1,10 +1,12 @@
 import pymongo
+import sys
 try:
     import secret_stuff
 except ModuleNotFoundError:
     print("Please create secret_stuff.py, go to github "
           "https://github.com/Grewoss/duckman-python_bot/blob/master/secret_stuff.py "
           "to see an example.")
+    sys.exit(0)
 
 client = pymongo.MongoClient(secret_stuff.database_token())
 
