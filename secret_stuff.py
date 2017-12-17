@@ -1,6 +1,8 @@
 def bot_token():
-    return "MzUxMDE1OTAzMjU0ODA2NTMw.DRfcVA.Ukqgns5J9p772UhtjCtqAets74k"
+    # This is just a placeholder token.
+    return "PLEASE_ADD_YOUR_BOT_TOKEN_HERE"
 
 
 def database_token():
-    return "MONGO_DB_KEY_HERE"
+    # This is just a placeholder key.
+    return "PLEASE_ADD_YOUR_MONGO_DB_KEY_HERE"

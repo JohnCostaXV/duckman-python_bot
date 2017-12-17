@@ -1,9 +1,16 @@
 import discord
-import secret_stuff
-import database
 import random
 import asyncio
 import time
+import sys
+try:
+    import secret_stuff
+except ModuleNotFoundError:
+    print("Please create a secret_stuff.py file, go to github "
+          "https://github.com/Grewoss/duckman-python_bot/blob/master/secret_stuff.py "
+          "to see an example.")
+    sys.exit(1)
+import database
 
 client = discord.Client()
 BOT_TOKEN = secret_stuff.bot_token()
@@ -614,4 +621,9 @@ def get_level(user_id: int):
 
 
 client.loop.create_task(random_status())
-client.run(BOT_TOKEN)
+
+try:
+    client.run(BOT_TOKEN)
+except discord.errors.LoginFailure:
+    print(">>>> Please update the Bot Token in secret_stuff.py! <<<<")
+    sys.exit(1)
