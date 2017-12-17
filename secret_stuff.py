@@ -1,5 +1,5 @@
 def bot_token():
-    return "BOT_TOKEN_HERE"
+    return "MzUxMDE1OTAzMjU0ODA2NTMw.DRfcVA.Ukqgns5J9p772UhtjCtqAets74k"
 
 
 def database_token():
