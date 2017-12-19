@@ -2,6 +2,7 @@ import discord
 import random
 import asyncio
 import time
+import datetime
 import sys
 try:
     import secret_stuff
@@ -75,7 +76,7 @@ async def on_message(message):
         add_xp(message.author.id, 2)
 
     except Exception as e:
-        fix_error(message.channel, e)
+        await fix_error(message.channel, e)
 
     author_xp = db.find_user(message.author.id)["xp"]
     author_levels = db.find_user(message.author.id)["levels"]
@@ -179,7 +180,7 @@ async def on_message(message):
         if author_xp < 800 and "level6" in author_levels:
             remove_level(message.author.id, "level6")
     except Exception as e:
-        fix_error(message.channel, e)
+        await fix_error(message.channel, e)
 
     if message.content.lower().startswith("!help"):
         embed = discord.Embed(
@@ -281,7 +282,10 @@ async def on_message(message):
             await fix_error(message.channel, e)
 
     if message.content.lower().startswith('!ping'):
-        await client.send_message(message.channel, "Pong")
+        msg_time = message.timestamp.microsecond
+        real_time = datetime.datetime.utcnow().microsecond
+        ping_ms = str(abs(msg_time - real_time))[:-4]
+        await client.send_message(message.channel, "Pong `{ping_ms}ms`".format(ping_ms=ping_ms))
 
     if message.content.lower().startswith('!who'):
         user_count = len(message.server.members)
