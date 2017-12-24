@@ -75,6 +75,9 @@ async def on_message(message):
     except KeyError:
         add_xp(message.author.id, 2)
 
+    except discord.errors.HTTPException:
+        pass
+
     except Exception as e:
         await fix_error(message.channel, e)
 
@@ -179,6 +182,8 @@ async def on_message(message):
 
         if author_xp < 800 and "level6" in author_levels:
             remove_level(message.author.id, "level6")
+    except discord.errors.HTTPException:
+        pass
     except Exception as e:
         await fix_error(message.channel, e)
 
@@ -278,6 +283,8 @@ async def on_message(message):
             )
             await client.send_message(message.channel, embed=embed)
             await client.delete_message(lb_data_msg)
+        except discord.errors.HTTPException:
+            pass
         except Exception as e:
             await fix_error(message.channel, e)
 
@@ -345,6 +352,8 @@ async def on_message(message):
                 gamble_msg_stuff[message.author.id] = value
         except ValueError:
             await client.send_message(message.channel, "Bitte benutze nur Zahlen. Example: `!gamble 20`")
+        except discord.errors.HTTPException:
+            pass
         except Exception as e:
             await fix_error(message.channel, e)
 
@@ -449,6 +458,8 @@ async def on_reaction_add(reaction, user):
                             "🔴 verdoppelt deine bezahlten XP."
             )
             await client.send_message(reaction.message.channel, embed=embed)
+    except discord.errors.HTTPException:
+        pass
     except Exception as e:
         await fix_error(reaction.message.channel, e)
 
