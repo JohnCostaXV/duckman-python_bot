@@ -363,6 +363,11 @@ async def on_message(message):
     if message.content.lower().startswith('!level'):
         await client.send_message(message.channel, "Du bist Level: `{}`".format(get_level(message.author.id)))
 
+    if message.content.lower().startswith('!restart') and message.author.id == "180546607626977280":
+        await client.send_message(message.channel, "Restart...")
+        await asyncio.sleep(2)
+        sys.exit(0)
+
     user_timer[message.author.id] = time.time()
 
 
