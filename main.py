@@ -329,7 +329,7 @@ async def on_message(message):
 
     if message.content.lower().startswith('!gamble') and message.channel.id == "378612791751475201":
         try:
-            value = int(message.content.lower().replace('!gamble', "").replace(" ", ""))
+            value = abs(int(message.content.lower().replace('!gamble', "").replace(" ", "")))
 
             if author_xp < value:
                 await client.send_message(message.channel, "Sorry, du hast nicht genug XP.")
