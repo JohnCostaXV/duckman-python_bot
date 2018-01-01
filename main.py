@@ -53,33 +53,34 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    try:
-        if time.time() >= user_timer[message.author.id] + 2:
-            user_spam_count[message.author.id] = 0
-            message_length = len(message.content)
-            if message_length > 5:
-                add_xp(message.author.id, 1)
-            if message_length > 50:
-                add_xp(message.author.id, 2)
-            if message_length > 150:
-                add_xp(message.author.id, 2)
+    if not message.channel.id == "378612791751475201":
+        try:
+            if time.time() >= user_timer[message.author.id] + 2:
+                user_spam_count[message.author.id] = 0
+                message_length = len(message.content)
+                if message_length > 5:
+                    add_xp(message.author.id, 1)
+                if message_length > 50:
+                    add_xp(message.author.id, 2)
+                if message_length > 150:
+                    add_xp(message.author.id, 2)
 
-        if time.time() < user_timer[message.author.id] + 2:
-            user_spam_count[message.author.id] += 1
-            if user_spam_count[message.author.id] >= 4:
-                remove_xp(message.author.id, 4)
-                await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) fuers spammen!!")
-            if user_spam_count[message.author.id] >= 10:
-                remove_xp(message.author.id, 6)
+            if time.time() < user_timer[message.author.id] + 2:
+                user_spam_count[message.author.id] += 1
+                if user_spam_count[message.author.id] >= 4:
+                    remove_xp(message.author.id, 4)
+                    await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) fuers spammen!!")
+                if user_spam_count[message.author.id] >= 10:
+                    remove_xp(message.author.id, 6)
 
-    except KeyError:
-        add_xp(message.author.id, 2)
+        except KeyError:
+            add_xp(message.author.id, 2)
 
-    except discord.errors.HTTPException:
-        pass
+        except discord.errors.HTTPException:
+            pass
 
-    except Exception as e:
-        await fix_error(message.channel, e)
+        except Exception as e:
+            await fix_error(message.channel, e)
 
     author_xp = db.find_user(message.author.id)["xp"]
     author_levels = db.find_user(message.author.id)["levels"]
