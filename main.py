@@ -197,6 +197,7 @@ async def on_message(message):
                         "- !role\n"
                         "- !r_role\n"
                         "- !xp\n"
+                        "- !xp @username @username2 username3..."
                         "- !lb\n"
                         "- !github\n"
                         "- !ping\n"
@@ -255,8 +256,16 @@ async def on_message(message):
         await client.send_message(message.channel, embed=embed)
 
     if message.content.lower().startswith("!xp"):
-        xp = get_xp(message.author.id)
-        await client.send_message(message.channel, "Du hast {} XP".format(xp))
+        if message.content.lower() == "!xp":
+            xp = get_xp(message.author.id)
+            await client.send_message(message.channel, "Du hast {} XP".format(xp))
+        else:
+            msg = "```\n"
+            for user in message.mentions:
+                user_xp = get_xp(user.id)
+                msg += "> {} hat {} XP\n".format(user.name, user_xp)
+            msg += "```"
+            await client.send_message(message.channel, msg)
 
     if message.content.lower().startswith("!lb"):
         try:
