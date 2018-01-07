@@ -183,6 +183,56 @@ async def on_message(message):
 
         if author_xp < 800 and "level6" in author_levels:
             remove_level(message.author.id, "level6")
+
+        if author_xp >= 1100 and "level7" not in author_levels:
+            add_level(message.author.id, "level7")
+
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 7!".format(message.author.name)
+            )
+            await client.send_message(message.channel, embed=embed)
+
+        if author_xp < 1100 and "level7" in author_levels:
+            remove_level(message.author.id, "level7")
+
+        if author_xp >= 1500 and "level8" not in author_levels:
+            add_level(message.author.id, "level8")
+
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 8!".format(message.author.name)
+            )
+            await client.send_message(message.channel, embed=embed)
+
+        if author_xp < 1500 and "level8" in author_levels:
+            remove_level(message.author.id, "level8")
+
+        if author_xp >= 2000 and "level9" not in author_levels:
+            add_level(message.author.id, "level9")
+
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 9!".format(message.author.name)
+            )
+            await client.send_message(message.channel, embed=embed)
+
+        if author_xp < 2000 and "level9" in author_levels:
+            remove_level(message.author.id, "level9")
+
+        if author_xp >= 2500 and "level10" not in author_levels:
+            add_level(message.author.id, "level10")
+            embed = discord.Embed(
+                title="LEVEL UP!!⏫🎉",
+                color=BOTCOLOR,
+                description="{} is now LEVEL 10!".format(message.author.name)
+            )
+            await client.send_message(message.channel, embed=embed)
+        if author_xp < 2500 and "level10" in author_levels:
+            remove_level(message.author.id, "level10")
     except discord.errors.HTTPException:
         pass
     except Exception as e:
