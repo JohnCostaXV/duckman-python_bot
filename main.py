@@ -53,34 +53,35 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    if not message.channel.id == "378612791751475201":
-        try:
-            if time.time() >= user_timer[message.author.id] + 2:
-                user_spam_count[message.author.id] = 0
-                message_length = len(message.content)
-                if message_length > 5:
-                    add_xp(message.author.id, 1)
-                if message_length > 50:
-                    add_xp(message.author.id, 2)
-                if message_length > 150:
-                    add_xp(message.author.id, 2)
+    if not message.author == "377935541028651008":
+        if not message.channel.id == "378612791751475201":
+            try:
+                if time.time() >= user_timer[message.author.id] + 2:
+                    user_spam_count[message.author.id] = 0
+                    message_length = len(message.content)
+                    if message_length > 5:
+                        add_xp(message.author.id, 1)
+                    if message_length > 50:
+                        add_xp(message.author.id, 2)
+                    if message_length > 150:
+                        add_xp(message.author.id, 2)
 
-            if time.time() < user_timer[message.author.id] + 2:
-                user_spam_count[message.author.id] += 1
-                if user_spam_count[message.author.id] >= 4:
-                    remove_xp(message.author.id, 4)
-                    await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) fuers spammen!!")
-                if user_spam_count[message.author.id] >= 10:
-                    remove_xp(message.author.id, 6)
+                if time.time() < user_timer[message.author.id] + 2:
+                    user_spam_count[message.author.id] += 1
+                    if user_spam_count[message.author.id] >= 4:
+                        remove_xp(message.author.id, 4)
+                        await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) fuers spammen!!")
+                    if user_spam_count[message.author.id] >= 10:
+                        remove_xp(message.author.id, 6)
 
-        except KeyError:
-            add_xp(message.author.id, 2)
+            except KeyError:
+                add_xp(message.author.id, 2)
 
-        except discord.errors.HTTPException:
-            pass
+            except discord.errors.HTTPException:
+                pass
 
-        except Exception as e:
-            await fix_error(message.channel, e)
+            except Exception as e:
+                await fix_error(message.channel, e)
 
     author_xp = db.find_user(message.author.id)["xp"]
     author_levels = db.find_user(message.author.id)["levels"]
@@ -247,13 +248,14 @@ async def on_message(message):
                         "- !role\n"
                         "- !r_role\n"
                         "- !xp\n"
-                        "- !xp @username @username2 username3..."
+                        "- !xp @username @username2 username3...\n"
                         "- !lb\n"
                         "- !github\n"
                         "- !ping\n"
                         "- !gamble ~HIER_XP~\n"
                         "- !who\n"
                         "- !level\n"
+                        "- !avg_xp\n"
                         "```"
         )
 
@@ -422,6 +424,18 @@ async def on_message(message):
 
     if message.content.lower().startswith('!level'):
         await client.send_message(message.channel, "Du bist Level: `{}`".format(get_level(message.author.id)))
+
+    if message.content.lower().startswith('!avg_xp'):
+        user_data = db.get_all()
+        user_count = len(user_data)
+        total_xp = 0
+        for member in message.server.members:
+            userxp = user_data[member.id]["xp"]
+            total_xp += userxp
+
+        sum = total_xp / user_count
+
+        await client.send_message(message.channel, "Der XP durchschnitt aller user betraegt `{}` XP!".format(int(sum)))
 
     if message.content.lower().startswith('!restart') and message.author.id == "180546607626977280":
         await client.send_message(message.channel, "Restart...")
