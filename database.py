@@ -60,9 +60,14 @@ class DataBase:
             print(e)
             return None
 
-    def deleted_user_base(self):
-        result = user_base.delete_many({})
-        return result
+    # def deleted_user_base(self):
+    #     result = user_base.delete_many({})
+    #     return result
 
 
-print("DataBase started")
+if __name__ == "__main__":
+    print("DataBase started")
+    db = DataBase().get_all()
+    print(db)
+else:
+    print("Database import success")

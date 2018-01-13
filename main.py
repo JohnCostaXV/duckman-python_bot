@@ -427,7 +427,7 @@ async def on_message(message):
 
     if message.content.lower().startswith('!avg_xp'):
         user_data = db.get_all()
-        user_count = len(user_data)
+        user_count = len(message.server.members)
         total_xp = 0
         for member in message.server.members:
             userxp = user_data[member.id]["xp"]
@@ -488,9 +488,9 @@ async def on_reaction_add(reaction, user):
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
-            if win in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+            if win <= 8:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-            if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
+            if 9 <= win <= 17:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
             if win in [18, 19]:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
@@ -504,11 +504,11 @@ async def on_reaction_add(reaction, user):
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
-            if win in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+            if win <= 8:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value1))
                 add_xp(user.id, won_value1)
-            if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
+            if 9 <= win <= 17:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
@@ -520,9 +520,9 @@ async def on_reaction_add(reaction, user):
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
-            if win in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+            if win <= 8:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-            if win in [9, 10, 11, 12, 13, 14, 15, 16, 17]:
+            if 9 <= win <= 17:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value0))
                 add_xp(user.id, won_value0)
