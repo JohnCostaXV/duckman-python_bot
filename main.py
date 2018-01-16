@@ -17,9 +17,11 @@ client = discord.Client()
 BOT_TOKEN = secret_stuff.bot_token()
 db = database.DataBase()
 
+last_msg_user = {"Last": None}
+
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
-                 , "!github", "gwo.io/"]
+                 , "!github", "gwo.io/", "I like {}".format(last_msg_user)]
 USER_GOALS = [80, 90, 100, 110, 120, 130, 140, 150]
 
 
@@ -52,6 +54,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    last_msg_user["Last"] = message.author.name
 
     if not message.author == "377935541028651008":
         if not message.channel.id == "378612791751475201":
