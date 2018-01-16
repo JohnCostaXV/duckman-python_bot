@@ -19,7 +19,7 @@ db = database.DataBase()
 
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
-                 , "!github"]
+                 , "!github", "gwo.io/"]
 USER_GOALS = [80, 90, 100, 110, 120, 130, 140, 150]
 
 
@@ -241,23 +241,24 @@ async def on_message(message):
 
     if message.content.lower().startswith("!help"):
         embed = discord.Embed(
-            title="Current Commands",
+            title="__**Current Commands**__",
             color=BOTCOLOR,
-            description="```\n"
-                        "- !help\n"
-                        "- !role\n"
-                        "- !r_role\n"
-                        "- !xp\n"
-                        "- !xp @username @username2 username3...\n"
-                        "- !lb\n"
-                        "- !github\n"
-                        "- !ping\n"
-                        "- !gamble ~HIER_XP~\n"
-                        "- !who\n"
-                        "- !level\n"
-                        "- !avg_xp\n"
-                        "```"
+            description="**> !help**\n"
+                        "**> !role**\n"
+                        "**> !r_role**\n"
+                        "**> !xp**\n"
+                        "**> !xp @username @username2 @username3...**\n"
+                        "**> !lb**\n"
+                        "**> !github**\n"
+                        "**> !ping**\n"
+                        "**> !gamble ~HIER_XP~**\n"
+                        "**> !who**\n"
+                        "**> !level**\n"
+                        "**> !avg_xp**\n",
+            url="https://gwo.io"
         )
+        embed.set_thumbnail(url="https://cdn.discordapp.com/app-icons/"
+                                "377935541028651008/246f7bd36407fc95cb10c5c77658b42c.png")
 
         await client.send_message(message.channel, embed=embed)
 
@@ -392,6 +393,7 @@ async def on_message(message):
     if message.content.lower().startswith('!gamble') and message.channel.id == "378612791751475201":
         try:
             value = abs(int(message.content.lower().replace('!gamble', "").replace(" ", "")))
+            gamble_msg_stuff[message.author.id] = value
 
             if author_xp < value:
                 await client.send_message(message.channel, "Sorry, du hast nicht genug XP.")
@@ -411,7 +413,7 @@ async def on_message(message):
 
                 gamble_msg_stuff["gamble_msg_id"] = msg.id
                 gamble_msg_stuff["gamble_msg_user_id"] = message.author.id
-                gamble_msg_stuff[message.author.id] = value
+
         except ValueError:
             await client.send_message(message.channel, "Bitte benutze nur Zahlen. Example: `!gamble 20`")
         except discord.errors.HTTPException:
@@ -494,7 +496,7 @@ async def on_reaction_add(reaction, user):
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
             if win in [18, 19]:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
-                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value0))
+                await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value0))
                 add_xp(user.id, won_value0)
 
         if reaction.emoji == "🔵" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
@@ -506,7 +508,7 @@ async def on_reaction_add(reaction, user):
             win = random.randint(0, 19)
             if win <= 8:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
-                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value1))
+                await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value1))
                 add_xp(user.id, won_value1)
             if 9 <= win <= 17:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
@@ -524,7 +526,7 @@ async def on_reaction_add(reaction, user):
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
             if 9 <= win <= 17:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
-                await client.send_message(reaction.message.channel, "You won {} XP!".format(won_value0))
+                await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value0))
                 add_xp(user.id, won_value0)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
