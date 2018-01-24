@@ -54,7 +54,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    if not message.author == "377935541028651008":
+    if not message.author.id == "377935541028651008":
         if not message.channel.id == "378612791751475201":
             try:
                 if time.time() >= user_timer[message.author.id] + 2:
@@ -174,6 +174,7 @@ async def on_message(message):
         for server in client.servers:
             for member in server.members:
                 set_level(member.id, 0)
+        await client.send_message(message.channel, "Cleared Level for every user!")
 
     if message.content.lower().startswith("!help"):
         embed = discord.Embed(
@@ -190,12 +191,42 @@ async def on_message(message):
                         "**> !gamble ~HIER_XP~**\n"
                         "**> !who**\n"
                         "**> !level**\n"
-                        "**> !avg_xp**\n",
+                        "**> !avg_xp**\n"
+                        "**> !me**\n",
             url="https://gwo.io"
         )
         embed.set_thumbnail(url="https://cdn.discordapp.com/app-icons/"
                                 "377935541028651008/246f7bd36407fc95cb10c5c77658b42c.png")
 
+        await client.send_message(message.channel, embed=embed)
+
+    if message.content.lower().startswith('!me'):
+        gamble_data = get_gamble_stats(message.author.id)
+        embed = discord.Embed(
+            title="__**Your Stats:**__",
+            color=BOTCOLOR,
+            description="Whats up"
+        )
+        embed.add_field(
+            name="Username:",
+            value=message.author.name
+        )
+        embed.add_field(
+            name="XP:",
+            value=get_xp(message.author.id)
+        )
+        embed.add_field(
+            name="Level:",
+            value=get_level(message.author.id)
+        )
+        embed.add_field(
+            name="Gamble's Won:",
+            value=gamble_data["won"]
+        )
+        embed.add_field(
+            name="Gamble's Lost",
+            value=gamble_data["lost"]
+        )
         await client.send_message(message.channel, embed=embed)
 
     if message.content.lower().startswith("!role") and author_levels >= 2:
@@ -428,12 +459,15 @@ async def on_reaction_add(reaction, user):
             win = random.randint(0, 19)
             if win <= 8:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
+                gamble_stats(False, user.id)
             if 9 <= win <= 17:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
+                gamble_stats(False, user.id)
             if win in [18, 19]:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value0))
                 add_xp(user.id, won_value0)
+                gamble_stats(True, user.id)
 
         if reaction.emoji == "🔵" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
@@ -446,10 +480,13 @@ async def on_reaction_add(reaction, user):
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value1))
                 add_xp(user.id, won_value1)
+                gamble_stats(True, user.id)
             if 9 <= win <= 17:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
+                gamble_stats(False, user.id)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
+                gamble_stats(False, user.id)
 
         if reaction.emoji == "🔴" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
@@ -460,12 +497,15 @@ async def on_reaction_add(reaction, user):
             win = random.randint(0, 19)
             if win <= 8:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
+                gamble_stats(False, user.id)
             if 9 <= win <= 17:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value0))
                 add_xp(user.id, won_value0)
+                gamble_stats(True, user.id)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
+                gamble_stats(False, user.id)
         if reaction.emoji == '❔' and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             embed = discord.Embed(
                 title="Gamble Info",
@@ -621,6 +661,46 @@ def get_level(user_id: int):
         return levels
     except:
         pass
+
+
+def gamble_stats(won: bool, user_id: int):
+    if won:
+        try:
+            user_data = db.find_user(user_id)
+            before_stat = user_data["gamble_won"]
+            after_stat = before_stat + 1
+            db.update_user(user_id, {"gamble_won": after_stat})
+        except KeyError:
+            before_stat = 0
+            after_stat = before_stat + 1
+            db.update_user(user_id, {"gamble_won": after_stat})
+
+    if not won:
+        try:
+            user_data = db.find_user(user_id)
+            before_stat = user_data["gamble_lost"]
+            after_stat = before_stat + 1
+            db.update_user(user_id, {"gamble_lost": after_stat})
+        except KeyError:
+            before_stat = 0
+            after_stat = before_stat + 1
+            db.update_user(user_id, {"gamble_lost": after_stat})
+
+
+def get_gamble_stats(user_id: int):
+    try:
+        user_data = db.find_user(user_id)
+        return {
+            "won": user_data["gamble_won"],
+            "lost": user_data["gamble_lost"]
+        }
+    except KeyError:
+        db.update_user(user_id, {"gamble_won": 0})
+        db.update_user(user_id, {"gamble_lost": 0})
+        return {
+            "won": 0,
+            "lost": 0
+        }
 
 
 def generate_embed(user, level: int):

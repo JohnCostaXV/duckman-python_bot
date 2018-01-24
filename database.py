@@ -23,7 +23,9 @@ class DataBase:
                 "_id": user_id,
                 "user_name": user_name,
                 "levels": 0,
-                "xp": 0
+                "xp": 0,
+                "gamble_won": 0,
+                "gamble_lost": 0
             }
             post_id = user_base.insert_one(post).inserted_id
             return post_id
