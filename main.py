@@ -178,6 +178,27 @@ async def on_message(message):
             await client.send_message(message.channel, embed=embed)
         if author_xp < 3500 and author_levels == 12:
             set_level(message.author.id, 11)
+        if author_xp >= 4000 and author_levels <= 12:
+            LEVEL = 13
+            set_level(message.author.id, LEVEL)
+            embed = generate_embed(message.author, LEVEL)
+            await client.send_message(message.channel, embed=embed)
+        if author_xp < 4000 and author_levels == 13:
+            set_level(message.author.id, 12)
+        if author_xp >= 4500 and author_levels <= 13:
+            LEVEL = 14
+            set_level(message.author.id, LEVEL)
+            embed = generate_embed(message.author, LEVEL)
+            await client.send_message(message.channel, embed=embed)
+        if author_xp < 4500 and author_levels == 14:
+            set_level(message.author.id, 13)
+        if author_xp >= 5000 and author_levels <= 14:
+            LEVEL = 15
+            set_level(message.author.id, LEVEL)
+            embed = generate_embed(message.author, LEVEL)
+            await client.send_message(message.channel, embed=embed)
+        if author_xp < 5000 and author_levels == 15:
+            set_level(message.author.id, 14)
 
     except discord.errors.HTTPException:
         pass
