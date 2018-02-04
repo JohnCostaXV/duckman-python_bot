@@ -227,7 +227,8 @@ async def on_message(message):
                         "**> !who**\n"
                         "**> !level**\n"
                         "**> !avg_xp**\n"
-                        "**> !me**\n",
+                        "**> !me**\n"
+                        "**> !tut_code**\n",
             url="https://gwo.io"
         )
         embed.set_thumbnail(url="https://cdn.discordapp.com/app-icons/"
@@ -445,6 +446,22 @@ async def on_message(message):
         await client.send_message(message.channel, "Restart...")
         await asyncio.sleep(2)
         sys.exit(0)
+
+    if message.content.lower().startswith('!tut_code'):
+        tutorial_code_str = ""
+        for i in range(2, 19):
+            if i == 12:
+                tutorial_code_str += "> [Discord Bot Tut Code {x}](https://gwo.io/Discord_Bot_Tutorial_{x})\n" \
+                                     "> [Discord Bot Tut Code {x}.1](https://gwo.io/Discord_Bot_Tutorial_{x}_1)\n".format(x=i)
+            else:
+                tutorial_code_str += "> [Discord Bot Tut Code {x}](https://gwo.io/Discord_Bot_Tutorial_{x})\n".format(x=i)
+
+        embed = discord.Embed(
+            title="Tutorial Code:",
+            description=tutorial_code_str,
+            color=BOTCOLOR
+        )
+        await client.send_message(message.channel, embed=embed)
 
     user_timer[message.author.id] = time.time()
 
