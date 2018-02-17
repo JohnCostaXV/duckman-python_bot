@@ -21,7 +21,7 @@ db = database.DataBase()
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
                  , "!github", "gwo.io/", "I like {}".format("Python")]
-USER_GOALS = [80, 90, 100, 110, 120, 130, 140, 150]
+USER_GOALS = [130, 140, 150, 160, 170, 180, 190, 200]
 
 
 reaction_msg_stuff = {"role_msg_id": None, "role_msg_user_id": None, "r_role_msg_id": None, "r_role_msg_user_id": None}
@@ -71,7 +71,8 @@ async def on_message(message):
                     user_spam_count[message.author.id] += 1
                     if user_spam_count[message.author.id] >= 4:
                         remove_xp(message.author.id, 4)
-                        await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) fuers spammen!!")
+                        await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) "
+                                                                  "fuers spammen!!")
                     if user_spam_count[message.author.id] >= 10:
                         remove_xp(message.author.id, 6)
 
@@ -241,7 +242,7 @@ async def on_message(message):
         embed = discord.Embed(
             title="__**Your Stats:**__",
             color=BOTCOLOR,
-            description="Whats up"
+            description="Whats up {}?".format(message.author.name)
         )
         embed.add_field(
             name="Username:",
@@ -355,10 +356,9 @@ async def on_message(message):
             await fix_error(message.channel, e)
 
     if message.content.lower().startswith('!ping'):
-        msg_time = message.timestamp.microsecond
-        real_time = datetime.datetime.utcnow().microsecond
-        ping_ms = str(abs(msg_time - real_time))[:-4]
-        await client.send_message(message.channel, "Pong `{ping_ms}ms`".format(ping_ms=ping_ms))
+        bot_msg = await client.send_message(message.channel, "Pong `calc ms`")
+        time_delta = bot_msg.timestamp - message.timestamp
+        await client.edit_message(bot_msg, "Pong `{ping_sec}sec`".format(ping_sec=time_delta.total_seconds()))
 
     if message.content.lower().startswith('!who'):
         user_count = len(message.server.members)
@@ -575,23 +575,24 @@ async def on_reaction_add(reaction, user):
 
 @client.event
 async def on_member_join(member):
-    db.create_user(member.id, member.name)
-    user_count = len(member.server.members)
-    log_channel = discord.Object('317560415699599362')
-    general_channel = discord.Object('316177775239102464')
-    await client.send_message(log_channel, "Willkommen {} auf unserem Server! 😊".format(member.mention))
+    if member.server.id == "316177775239102464":
+        db.create_user(member.id, member.name)
+        user_count = len(member.server.members)
+        log_channel = discord.Object('317560415699599362')
+        general_channel = discord.Object('316177775239102464')
+        await client.send_message(log_channel, "Willkommen {} auf unserem Server! 😊".format(member.mention))
 
-    if user_count in USER_GOALS:
-        await client.send_message(general_channel, "Der Server hat so eben {} User erreicht 🚀".format(user_count))
+        if user_count in USER_GOALS:
+            await client.send_message(general_channel, "Der Server hat so eben {} User erreicht 🚀".format(user_count))
 
 
-async def random_status():
-    await client.wait_until_ready()
-    while not client.is_closed:
-        time = random.randint(3600, 21600)
-        await asyncio.sleep(time)
-        choice = random.choice(RANDOM_STATUS)
-        await client.change_presence(game=discord.Game(name=choice, type=0))
+# async def random_status():
+#     await client.wait_until_ready()
+#     while not client.is_closed:
+#         time = random.randint(3600, 21600)
+#         await asyncio.sleep(time)
+#         choice = random.choice(RANDOM_STATUS)
+#         await client.change_presence(game=discord.Game(name=choice, type=0))
 
 
 async def fix_error(channel, error):
@@ -780,7 +781,7 @@ def generate_embed(user, level: int):
     return embed
 
 
-client.loop.create_task(random_status())
+# client.loop.create_task(random_status())
 
 try:
     client.run(BOT_TOKEN)
