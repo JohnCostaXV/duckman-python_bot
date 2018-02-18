@@ -17,7 +17,7 @@ user_base = discord_db.users
 
 class DataBase:
 
-    def create_user(self, user_id: int, user_name):
+    async def create_user(self, user_id: int, user_name):
         try:
             post = {
                 "_id": user_id,
@@ -32,7 +32,7 @@ class DataBase:
         except:
             return None
 
-    def find_user(self, user_id: int):
+    async def find_user(self, user_id: int):
         try:
             found = list(user_base.find({"_id": user_id}))[0]
             return found
@@ -40,7 +40,7 @@ class DataBase:
             print(e)
             return None
 
-    def update_user(self, user_id: int, change_dict: dict):
+    async def update_user(self, user_id: int, change_dict: dict):
         try:
             update = user_base.update_one({
                 "_id": user_id}, {
@@ -51,7 +51,7 @@ class DataBase:
             print(e)
             return None
 
-    def get_all(self):
+    async def get_all(self):
         try:
             data = user_base.find()
             r_data = {}

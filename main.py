@@ -40,7 +40,8 @@ async def on_ready():
         grewoss = None
         for server in client.servers:
             for member in server.members:
-                db.create_user(member.id, member.name)
+                await asyncio.sleep(0)
+                await db.create_user(member.id, member.name)
                 if member.id == "180546607626977280":
                     grewoss = member
         choice = random.choice(RANDOM_STATUS)
@@ -61,23 +62,23 @@ async def on_message(message):
                     user_spam_count[message.author.id] = 0
                     message_length = len(message.content)
                     if message_length > 5:
-                        add_xp(message.author.id, 1)
+                        await add_xp(message.author.id, 1)
                     if message_length > 50:
-                        add_xp(message.author.id, 2)
+                        await add_xp(message.author.id, 2)
                     if message_length > 150:
-                        add_xp(message.author.id, 2)
+                        await add_xp(message.author.id, 2)
 
                 if time.time() < user_timer[message.author.id] + 2:
                     user_spam_count[message.author.id] += 1
                     if user_spam_count[message.author.id] >= 4:
-                        remove_xp(message.author.id, 4)
+                        await remove_xp(message.author.id, 4)
                         await client.send_message(message.author, "Bitte nicht spammen, du bekommst (-XP) "
                                                                   "fuers spammen!!")
                     if user_spam_count[message.author.id] >= 10:
-                        remove_xp(message.author.id, 6)
+                        await remove_xp(message.author.id, 6)
 
             except KeyError:
-                add_xp(message.author.id, 2)
+                await add_xp(message.author.id, 2)
 
             except discord.errors.HTTPException:
                 pass
@@ -85,121 +86,122 @@ async def on_message(message):
             except Exception as e:
                 await fix_error(message.channel, e)
 
-    author_xp = db.find_user(message.author.id)["xp"]
-    author_levels = get_level(message.author.id)
+    author = await db.find_user(message.author.id)
+    author_xp = author['xp']
+    author_levels = await get_level(message.author.id)
 
     try:
         if author_xp >= 10 and author_levels <= 0:
             LEVEL = 1
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 10 and author_levels == 1:
-            set_level(message.author.id, 0)
+            await set_level(message.author.id, 0)
         if author_xp >= 50 and author_levels <= 1:
             LEVEL = 2
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 50 and author_levels == 2:
-            set_level(message.author.id, 1)
+            await set_level(message.author.id, 1)
             for role in message.author.roles:
                 if role.name.lower() == "programmer" or role.name.lower() == "designer" or role.name.lower() == "gamer":
                     await client.remove_roles(message.author, role)
         if author_xp >= 100 and author_levels <= 2:
             LEVEL = 3
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 100 and author_levels == 3:
-            set_level(message.author.id, 2)
+            await set_level(message.author.id, 2)
         if author_xp >= 200 and author_levels <= 3:
             LEVEL = 4
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             for role in message.server.roles:
                 if role.name.lower() == "active":
                     await client.add_roles(message.author, role)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 200 and author_levels == 4:
-            set_level(message.author.id, 3)
+            await set_level(message.author.id, 3)
         if author_xp >= 400 and author_levels <= 4:
             LEVEL = 5
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 400 and author_levels == 5:
-            set_level(message.author.id, 4)
+            await set_level(message.author.id, 4)
         if author_xp >= 800 and author_levels <= 5:
             LEVEL = 6
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 800 and author_levels == 6:
             set_level(message.author.id, 5)
         if author_xp >= 1100 and author_levels <= 6:
             LEVEL = 7
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 1100 and author_levels == 7:
-            set_level(message.author.id, 6)
+            await set_level(message.author.id, 6)
         if author_xp >= 1500 and author_levels <= 7:
             LEVEL = 8
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 1500 and author_levels == 8:
             set_level(message.author.id, 7)
         if author_xp >= 2000 and author_levels <= 8:
             LEVEL = 9
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 2000 and author_levels == 9:
-            set_level(message.author.id, 8)
+            await set_level(message.author.id, 8)
         if author_xp >= 2500 and author_levels <= 9:
             LEVEL = 10
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 2500 and author_levels == 10:
-            set_level(message.author.id, 9)
+            await set_level(message.author.id, 9)
         if author_xp >= 3000 and author_levels <= 10:
             LEVEL = 11
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 3000 and author_levels == 11:
-            set_level(message.author.id, 10)
+            await set_level(message.author.id, 10)
         if author_xp >= 3500 and author_levels <= 11:
             LEVEL = 12
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 3500 and author_levels == 12:
-            set_level(message.author.id, 11)
+            await set_level(message.author.id, 11)
         if author_xp >= 4000 and author_levels <= 12:
             LEVEL = 13
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 4000 and author_levels == 13:
-            set_level(message.author.id, 12)
+            await set_level(message.author.id, 12)
         if author_xp >= 4500 and author_levels <= 13:
             LEVEL = 14
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 4500 and author_levels == 14:
-            set_level(message.author.id, 13)
+            await set_level(message.author.id, 13)
         if author_xp >= 5000 and author_levels <= 14:
             LEVEL = 15
-            set_level(message.author.id, LEVEL)
+            await set_level(message.author.id, LEVEL)
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 5000 and author_levels == 15:
-            set_level(message.author.id, 14)
+            await set_level(message.author.id, 14)
 
     except discord.errors.HTTPException:
         pass
@@ -209,7 +211,7 @@ async def on_message(message):
     if message.content.lower().startswith("!clear_lvl") and message.author.id == "180546607626977280":
         for server in client.servers:
             for member in server.members:
-                set_level(member.id, 0)
+                await set_level(member.id, 0)
         await client.send_message(message.channel, "Cleared Level for every user!")
 
     if message.content.lower().startswith("!help"):
@@ -238,7 +240,7 @@ async def on_message(message):
         await client.send_message(message.channel, embed=embed)
 
     if message.content.lower().startswith('!me'):
-        gamble_data = get_gamble_stats(message.author.id)
+        gamble_data = await get_gamble_stats(message.author.id)
         embed = discord.Embed(
             title="__**Your Stats:**__",
             color=BOTCOLOR,
@@ -250,11 +252,11 @@ async def on_message(message):
         )
         embed.add_field(
             name="XP:",
-            value=get_xp(message.author.id)
+            value=await get_xp(message.author.id)
         )
         embed.add_field(
             name="Level:",
-            value=get_level(message.author.id)
+            value=await get_level(message.author.id)
         )
         embed.add_field(
             name="Gamble's Won:",
@@ -314,12 +316,12 @@ async def on_message(message):
 
     if message.content.lower().startswith("!xp"):
         if message.content.lower() == "!xp":
-            xp = get_xp(message.author.id)
+            xp = await get_xp(message.author.id)
             await client.send_message(message.channel, "Du hast {} XP".format(xp))
         else:
             msg = "```\n"
             for user in message.mentions:
-                user_xp = get_xp(user.id)
+                user_xp = await get_xp(user.id)
                 msg += "> {} hat {} XP\n".format(user.name, user_xp)
             msg += "```"
             await client.send_message(message.channel, msg)
@@ -328,7 +330,7 @@ async def on_message(message):
         try:
             lb_data_msg = await client.send_message(message.channel, "Sammel Leaderboard Daten")
             leaderboard_str = "```\n"
-            data = db.get_all()
+            data = await db.get_all()
             counter = 1
             # lb = list(map(lambda m: (m, get_xp(m.id)), message.server.members))
 
@@ -377,7 +379,7 @@ async def on_message(message):
 
         for user in message.mentions:
             try:
-                add_xp(user.id, int(text_out))
+                await add_xp(user.id, int(text_out))
                 await client.send_message(message.channel, "Added {} xp to {}".format(text_out, user.name))
             except:
                 client.send_message(message.author, "Failed to add xp to {}".format(user.name))
@@ -388,7 +390,7 @@ async def on_message(message):
 
         for user in message.mentions:
             try:
-                remove_xp(user.id, int(text_out))
+                await remove_xp(user.id, int(text_out))
                 await client.send_message(message.channel, "Removed {} xp from {}".format(text_out, user.name))
             except:
                 await client.send_message(message.author, "Failed to remove xp from {}".format(user.name))
@@ -428,10 +430,10 @@ async def on_message(message):
         await client.send_message(message.channel, "Bitte gamble nur im #Spam channel. :)")
 
     if message.content.lower().startswith('!level'):
-        await client.send_message(message.channel, "Du bist Level: `{}`".format(get_level(message.author.id)))
+        await client.send_message(message.channel, "Du bist Level: `{}`".format(await get_level(message.author.id)))
 
     if message.content.lower().startswith('!avg_xp'):
-        user_data = db.get_all()
+        user_data = await db.get_all()
         user_count = len(message.server.members)
         total_xp = 0
         for member in message.server.members:
@@ -445,7 +447,7 @@ async def on_message(message):
     if message.content.lower().startswith('!restart') and message.author.id == "180546607626977280":
         await client.send_message(message.channel, "Restart...")
         await asyncio.sleep(2)
-        sys.exit(0)
+        sys.exit(1)
 
     if message.content.lower().startswith('!tut_code'):
         tutorial_code_str = ""
@@ -504,26 +506,26 @@ async def on_reaction_add(reaction, user):
 
         if reaction.emoji == "🐤" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
-            remove_xp(user.id, value)
+            await remove_xp(user.id, value)
             won_value0 = value * 10
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
             if win <= 8:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-                gamble_stats(False, user.id)
+                await gamble_stats(False, user.id)
             if 9 <= win <= 17:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-                gamble_stats(False, user.id)
+                await gamble_stats(False, user.id)
             if win in [18, 19]:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value0))
-                add_xp(user.id, won_value0)
-                gamble_stats(True, user.id)
+                await add_xp(user.id, won_value0)
+                await gamble_stats(True, user.id)
 
         if reaction.emoji == "🔵" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
-            remove_xp(user.id, value)
+            await remove_xp(user.id, value)
             won_value1 = value * 2
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
@@ -531,33 +533,33 @@ async def on_reaction_add(reaction, user):
             if win <= 8:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value1))
-                add_xp(user.id, won_value1)
-                gamble_stats(True, user.id)
+                await add_xp(user.id, won_value1)
+                await gamble_stats(True, user.id)
             if 9 <= win <= 17:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-                gamble_stats(False, user.id)
+                await gamble_stats(False, user.id)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-                gamble_stats(False, user.id)
+                await gamble_stats(False, user.id)
 
         if reaction.emoji == "🔴" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
-            remove_xp(user.id, value)
+            await remove_xp(user.id, value)
             won_value0 = value * 2
 
             gamble_msg_stuff["gamble_msg_user_id"] = None
             win = random.randint(0, 19)
             if win <= 8:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-                gamble_stats(False, user.id)
+                await gamble_stats(False, user.id)
             if 9 <= win <= 17:
                 await won_gamble(True, reaction.message.channel, reaction.emoji)
                 await client.send_message(reaction.message.channel, "`{}` won {} XP!".format(user.name, won_value0))
-                add_xp(user.id, won_value0)
-                gamble_stats(True, user.id)
+                await add_xp(user.id, won_value0)
+                await gamble_stats(True, user.id)
             if win in [18, 19]:
                 await won_gamble(False, reaction.message.channel, reaction.emoji)
-                gamble_stats(False, user.id)
+                await gamble_stats(False, user.id)
         if reaction.emoji == '❔' and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             embed = discord.Embed(
                 title="Gamble Info",
@@ -576,7 +578,7 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_member_join(member):
     if member.server.id == "316177775239102464":
-        db.create_user(member.id, member.name)
+        await db.create_user(member.id, member.name)
         user_count = len(member.server.members)
         log_channel = discord.Object('317560415699599362')
         general_channel = discord.Object('316177775239102464')
@@ -667,89 +669,89 @@ async def won_gamble(won: bool, channel, emoji):
         await client.edit_message(gamble_msg, embed=embed6)
 
 
-def add_xp(user_id: int, xp: int):
+async def add_xp(user_id: int, xp: int):
     try:
-        user_data = db.find_user(user_id)
+        user_data = await db.find_user(user_id)
         before_xp = user_data["xp"]
         after_xp = before_xp + xp
-        db.update_user(user_id, {"xp": after_xp})
+        await db.update_user(user_id, {"xp": after_xp})
         return after_xp
     except:
-        db.update_user(user_id, {"xp": xp})
+        await db.update_user(user_id, {"xp": xp})
         return xp
 
 
-def remove_xp(user_id: int, xp: int):
+async def remove_xp(user_id: int, xp: int):
     try:
-        user_data = db.find_user(user_id)
+        user_data = await db.find_user(user_id)
         before_xp = user_data["xp"]
         after_xp = before_xp - xp
-        db.update_user(user_id, {"xp": after_xp})
+        await db.update_user(user_id, {"xp": after_xp})
         return after_xp
     except:
         db.update_user(user_id, {"xp": xp})
         return xp
 
 
-def get_xp(user_id: int):
+async def get_xp(user_id: int):
     try:
-        user_data = db.find_user(user_id)
+        user_data = await db.find_user(user_id)
         user_xp = user_data["xp"]
         return user_xp
     except:
         return 0
 
 
-def set_level(user_id: int, level: int):
+async def set_level(user_id: int, level: int):
     try:
-        db.update_user(user_id, {"levels": level})
+        await db.update_user(user_id, {"levels": level})
         return level
     except:
         pass
 
 
-def get_level(user_id: int):
+async def get_level(user_id: int):
     try:
-        levels = db.find_user(user_id)["levels"]
-        return levels
+        levels = await db.find_user(user_id)
+        return levels["levels"]
     except:
         pass
 
 
-def gamble_stats(won: bool, user_id: int):
+async def gamble_stats(won: bool, user_id: int):
     if won:
         try:
-            user_data = db.find_user(user_id)
+            user_data = await db.find_user(user_id)
             before_stat = user_data["gamble_won"]
             after_stat = before_stat + 1
-            db.update_user(user_id, {"gamble_won": after_stat})
+            await db.update_user(user_id, {"gamble_won": after_stat})
         except KeyError:
             before_stat = 0
             after_stat = before_stat + 1
-            db.update_user(user_id, {"gamble_won": after_stat})
+            await db.update_user(user_id, {"gamble_won": after_stat})
 
     if not won:
         try:
-            user_data = db.find_user(user_id)
+            user_data = await db.find_user(user_id)
             before_stat = user_data["gamble_lost"]
             after_stat = before_stat + 1
-            db.update_user(user_id, {"gamble_lost": after_stat})
+            await db.update_user(user_id, {"gamble_lost": after_stat})
         except KeyError:
             before_stat = 0
             after_stat = before_stat + 1
-            db.update_user(user_id, {"gamble_lost": after_stat})
+            await db.update_user(user_id, {"gamble_lost": after_stat})
 
 
-def get_gamble_stats(user_id: int):
+async def get_gamble_stats(user_id: int):
     try:
-        user_data = db.find_user(user_id)
+        user_data = await db.find_user(user_id)
         return {
             "won": user_data["gamble_won"],
             "lost": user_data["gamble_lost"]
         }
     except KeyError:
-        db.update_user(user_id, {"gamble_won": 0})
-        db.update_user(user_id, {"gamble_lost": 0})
+        await db.update_user(user_id, {"gamble_won": 0})
+        await db.update_user(user_id, {"gamble_lost": 0})
         return {
             "won": 0,
             "lost": 0
