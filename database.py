@@ -25,7 +25,8 @@ class DataBase:
                 "levels": 0,
                 "xp": 0,
                 "gamble_won": 0,
-                "gamble_lost": 0
+                "gamble_lost": 0,
+                "myrole": None
             }
             post_id = user_base.insert_one(post).inserted_id
             return post_id
@@ -34,7 +35,7 @@ class DataBase:
 
     async def find_user(self, user_id: int):
         try:
-            found = list(user_base.find({"_id": user_id}))[0]
+            found = user_base.find_one({"_id": user_id})
             return found
         except Exception as e:
             print(e)

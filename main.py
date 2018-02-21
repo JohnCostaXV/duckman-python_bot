@@ -306,6 +306,42 @@ async def on_message(message):
     if message.content.lower().startswith("!r_role") and author_levels < 2:
         await client.send_message(message.channel, "Sorry, du musst mindestens Level 2 sein!")
 
+    if message.content.lower().startswith("!myrole"):
+        myrole = await get_myrole(message.author.id)
+        if myrole is not None:
+            if message.content.lower() == "!myrole":
+                embed = discord.Embed(
+                    title="Myrole Setup",
+                    description="Schreibe `!myrole (#2aaf55)` wobei #2aaf55 fuer ein Hex Color Code steht "
+                                "um deine Farbe zu aendern.\n"
+                                "Siehe http://www.colorhexa.com/",
+                    color=BOTCOLOR
+                )
+                await client.send_message(message.channel, embed=embed)
+            else:
+                text_in = message.content
+                hex_color_raw = str(text_in[text_in.find("(") + 1:text_in.find(")")])[1:]
+                hex_color = int(''.join("0x") + hex_color_raw, 16)
+                myrole_c = discord.Colour(hex_color)
+
+                for role in message.server.roles:
+                    if role.name == myrole:
+                        await client.edit_role(message.server, role, color=myrole_c)
+                        await client.move_role(message.server, role, 12)
+                        await client.send_message(message.channel, "Role updated!")
+                        break
+        else:
+            embed = discord.Embed(
+                title="Myrole Setup",
+                description="Willst du eine eigene Role(Farbe) fuer 500XP kaufen?",
+                color=BOTCOLOR
+            )
+            msg = await client.send_message(message.channel, embed=embed)
+            reaction_msg_stuff["my_role_msg_id"] = msg.id
+            reaction_msg_stuff["my_role_user_id"] = message.author.id
+            await client.add_reaction(msg, '✅')
+            await client.add_reaction(msg, '❌')
+
     if message.content.lower().startswith("!github"):
         embed = discord.Embed(
             title="GitHub",
@@ -504,6 +540,23 @@ async def on_reaction_add(reaction, user):
                 if role.name.lower() == "designer":
                     await client.remove_roles(user, role)
 
+        if reaction.emoji == '✅' and msgid == reaction_msg_stuff["my_role_msg_id"] and user.id == reaction_msg_stuff["my_role_user_id"]:
+            user_xp = await get_xp(user.id)
+            if user_xp >= 500:
+                role_name = user.id
+                genmyrole = await client.create_role(reaction.message.server, name=role_name, mentionable=False,
+                                                     hoist=False)
+                await client.add_roles(user, genmyrole)
+                await set_myrole(user.id, role_name)
+                await remove_xp(user.id, 500)
+                await client.send_message(reaction.message.channel,"Role erstellt! Schreibe `!myrole` fuer mehr Infos!")
+            else:
+                await client.send_message(reaction.message.channel, "Sorry, du hast nicht genug XP! Du brauchst noch `{}XP`!".format(500 - user_xp))
+
+        if reaction.emoji == '❌' and msgid == reaction_msg_stuff["my_role_msg_id"] and user.id == reaction_msg_stuff["my_role_user_id"]:
+            await client.send_message(reaction.message.channel, "Okay!")
+
+        # GAMBLE STUFF
         if reaction.emoji == "🐤" and msgid == gamble_msg_stuff["gamble_msg_id"] and user.id == gamble_msg_stuff["gamble_msg_user_id"]:
             value = gamble_msg_stuff[user.id]
             await remove_xp(user.id, value)
@@ -718,6 +771,19 @@ async def get_level(user_id: int):
         pass
 
 
+async def get_myrole(user_id: int):
+    try:
+        myrole = await db.find_user(user_id)
+        return myrole["myrole"]
+    except KeyError:
+        await set_myrole(user_id, None)
+        return None
+
+
+async def set_myrole(user_id: int, myrole_name: str):
+    await db.update_user(user_id, {"myrole": myrole_name})
+
+
 async def gamble_stats(won: bool, user_id: int):
     if won:
         try:
@@ -785,8 +851,9 @@ def generate_embed(user, level: int):
 
 # client.loop.create_task(random_status())
 
-try:
-    client.run(BOT_TOKEN)
-except discord.errors.LoginFailure:
-    print(">>>> Please update the Bot Token in secret_stuff.py! <<<<")
-    sys.exit(0)
+if __name__ == '__main__':
+    try:
+        client.run(BOT_TOKEN)
+    except discord.errors.LoginFailure:
+        print(">>>> Please update the Bot Token in secret_stuff.py! <<<<")
+        sys.exit(0)
