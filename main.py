@@ -22,7 +22,7 @@ MYROLE_COST = 250
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
                  , "!github", "gwo.io/", "I like {}".format("Python")]
-USER_GOALS = [130, 140, 150, 160, 170, 180, 190, 200]
+USER_GOALS = [140, 150, 160, 170, 180, 190, 200]
 
 
 reaction_msg_stuff = {"role_msg_id": None, "role_msg_user_id": None, "r_role_msg_id": None, "r_role_msg_user_id": None}
@@ -488,7 +488,7 @@ async def on_message(message):
 
     if message.content.lower().startswith('!tut_code'):
         tutorial_code_str = ""
-        for i in range(2, 19):
+        for i in range(2, 21):
             if i == 12:
                 tutorial_code_str += "> [Discord Bot Tut Code {x}](https://gwo.io/Discord_Bot_Tutorial_{x})\n" \
                                      "> [Discord Bot Tut Code {x}.1](https://gwo.io/Discord_Bot_Tutorial_{x}_1)\n".format(x=i)
