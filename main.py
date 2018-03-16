@@ -22,7 +22,7 @@ MYROLE_COST = 250
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
                  , "!github", "gwo.io/", "I like {}".format("Python")]
-USER_GOALS = [140, 150, 160, 170, 180, 190, 200]
+USER_GOALS = [150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250]
 
 
 reaction_msg_stuff = {"role_msg_id": None, "role_msg_user_id": None, "r_role_msg_id": None, "r_role_msg_user_id": None}
@@ -420,6 +420,17 @@ async def on_message(message):
                 await client.send_message(message.channel, "Added {} xp to {}".format(text_out, user.name))
             except:
                 client.send_message(message.author, "Failed to add xp to {}".format(user.name))
+
+    if message.content.lower().startswith('!set_lvl') and message.author.id == "180546607626977280":
+        text_in = message.content
+        text_out = text_in[text_in.find("(") + 1:text_in.find(")")]
+
+        for user in message.mentions:
+            try:
+                await set_level(user.id, int(text_out))
+                await client.send_message(message.channel, "{} is now Level {}".format(user.name, text_out))
+            except:
+                client.send_message(message.author, "Failed to set Level for {}".format(user.name))
 
     if message.content.lower().startswith('!remove_xp') and message.author.id == "180546607626977280":
         text_in = message.content
