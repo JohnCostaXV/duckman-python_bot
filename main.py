@@ -22,7 +22,9 @@ MYROLE_COST = 250
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
                  , "!github", "gwo.io/", "I like {}".format("Python")]
-USER_GOALS = [150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250]
+USER_GOALS = [160, 170, 180, 190, 200, 210, 220, 230, 240, 250]
+HELPER_STATUS = 15
+HELPER_ROLE_NAME = ""
 
 
 reaction_msg_stuff = {"role_msg_id": None, "role_msg_user_id": None, "r_role_msg_id": None, "r_role_msg_user_id": None}
@@ -90,8 +92,16 @@ async def on_message(message):
     author = await db.find_user(message.author.id)
     author_xp = author['xp']
     author_levels = await get_level(message.author.id)
+    helper_votes = await get_helper_votes(message.author.id)
 
     try:
+        if helper_votes >= 15:
+            for role in message.server.roles:
+                if role.name.lower() == HELPER_ROLE_NAME.lower():
+                    await client.add_roles(message.author, role)
+            await client.send_message(message.author, "Dir wurde die `Helper` Role zugeteilt!")
+            await client.send_message(message.channel, "{} gehoert nun zu den `Helper'n`".format(message.author.name))
+
         if author_xp >= 10 and author_levels <= 0:
             LEVEL = 1
             await set_level(message.author.id, LEVEL)
@@ -153,7 +163,7 @@ async def on_message(message):
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 1500 and author_levels == 8:
-            set_level(message.author.id, 7)
+            await set_level(message.author.id, 7)
         if author_xp >= 2000 and author_levels <= 8:
             LEVEL = 9
             await set_level(message.author.id, LEVEL)
@@ -398,6 +408,42 @@ async def on_message(message):
         bot_msg = await client.send_message(message.channel, "Pong `calc ms`")
         time_delta = bot_msg.timestamp - message.timestamp
         await client.edit_message(bot_msg, "Pong `{ping_sec}sec`".format(ping_sec=time_delta.total_seconds()))
+
+    if message.content.lower().startswith('!v_helper'):
+        last_vote = await get_last_helper_vote(message.author.id)
+        if last_vote is not None:
+            time_delta = datetime.datetime.utcnow() - last_vote
+            if time_delta.total_seconds() >= 604800:
+                if len(message.mentions) > 1 or len(message.mentions) == 0:
+                    await client.send_message(message.channel,
+                                              "Du kannst nur fuer eine Person pro Woche Voten! `!v_helper @Username`")
+                else:
+                    user_name = ""
+                    votes = 0
+                    for user in message.mentions:
+                        await add_helper_vote(user.id)
+                        votes = await get_helper_votes(user.id)
+                        user_name = user.name
+                    await client.send_message(message.channel,
+                                              "Danke fuers voten! {} hat nun {} Votes".format(user_name, votes))
+            else:
+                await client.send_message(message.channel,
+                                          "Du kannst nur fuer eine Person pro Woche Voten! `!v_helper @Username`")
+        else:
+            if len(message.mentions) > 1 or len(message.mentions) == 0:
+                await client.send_message(message.channel,
+                                          "Du kannst nur fuer eine Person pro Woche Voten! `!v_helper @Username`")
+            else:
+                user_name = ""
+                votes = 0
+                for user in message.mentions:
+                    await add_helper_vote(user.id)
+                    votes = await get_helper_votes(user.id)
+                    user_name = user.name
+                await client.send_message(message.channel,
+                                          "Danke fuers voten! {} hat nun {} Votes".format(user_name, votes))
+        await set_last_helper_vote(message.author.id)
+
 
     if message.content.lower().startswith('!who'):
         user_count = len(message.server.members)
@@ -665,10 +711,12 @@ async def on_member_join(member):
 
 
 async def fix_error(channel, error):
+    exc_type, exc_obj, exc_tb = sys.exc_info()
     embed = discord.Embed(
         title="ERROR",
         color=BOTCOLOR,
-        description="Hier ist der Error, versuch ihn zu fixen! ```{}```".format(error)
+        description="Hier ist der Error, versuch ihn zu fixen! ```{} \n>>>Line: {}<<<```".format(error,
+                                                                                                 exc_tb.tb_lineno)
     )
     embed.add_field(
         name="Hier ist der GitHub Link.",
@@ -783,6 +831,40 @@ async def get_level(user_id: int):
         return levels["levels"]
     except:
         pass
+
+
+async def get_helper_votes(user_id):
+    try:
+        user_data = await db.find_user(user_id)
+        current_votes = user_data["helper_votes"]
+        return current_votes
+    except KeyError:
+        await db.update_user(user_id, {"helper_votes": 0})
+        return 0
+
+
+async def add_helper_vote(user_id):
+    try:
+        user_data = await db.find_user(user_id)
+        current_votes = user_data["helper_votes"]
+        current_votes += 1
+        await db.update_user(user_id, {"helper_votes": current_votes})
+    except KeyError:
+        await db.update_user(user_id, {"helper_votes": 1})
+
+
+async def set_last_helper_vote(user_id):
+    await db.update_user(user_id, {"last_vote": datetime.datetime.utcnow()})
+
+
+async def get_last_helper_vote(user_id):
+    try:
+        user_data =await db.find_user(user_id)
+        last_time = user_data["last_vote"]
+        return last_time
+    except KeyError:
+        await db.update_user(user_id, {"last_vote": None})
+        return None
 
 
 async def get_myrole(user_id: int):

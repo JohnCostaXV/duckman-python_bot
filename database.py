@@ -26,7 +26,9 @@ class DataBase:
                 "xp": 0,
                 "gamble_won": 0,
                 "gamble_lost": 0,
-                "myrole": None
+                "myrole": None,
+                "helper_votes": 0,
+                "last_vote": None
             }
             post_id = user_base.insert_one(post).inserted_id
             return post_id
