@@ -227,6 +227,11 @@ async def on_message(message):
                 await set_level(member.id, 0)
         await client.send_message(message.channel, "Cleared Level for every user!")
 
+    if message.content.lower().startswith("!c_lvl") and message.author.id == "180546607626977280":
+        for member in message.mentions:
+            await set_level(member.id, 0)
+        await client.send_message(message.channel, "Cleared Level!")
+
     if message.content.lower().startswith("!help"):
         embed = discord.Embed(
             title="__**Current Commands**__",
@@ -244,7 +249,8 @@ async def on_message(message):
                         "**> !level**\n"
                         "**> !avg_xp**\n"
                         "**> !me**\n"
-                        "**> !tut_code**\n",
+                        "**> !tut_code**\n"
+                        "**> !v_helper @username**\n",
             url="https://gwo.io"
         )
         embed.set_thumbnail(url="https://cdn.discordapp.com/app-icons/"
