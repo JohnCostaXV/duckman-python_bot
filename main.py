@@ -253,8 +253,8 @@ async def on_message(message):
                         "**> !v_helper @username**\n",
             url="https://gwo.io"
         )
-        embed.set_thumbnail(url="https://cdn.discordapp.com/app-icons/"
-                                "377935541028651008/246f7bd36407fc95cb10c5c77658b42c.png")
+        embed.set_footer(text="Mainly developed by Grewoss | Avatar design by Grassmou")
+        embed.set_thumbnail(url=client.user.avatar_url)
 
         await client.send_message(message.channel, embed=embed)
 
