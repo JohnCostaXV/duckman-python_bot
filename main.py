@@ -1,4 +1,5 @@
 import discord
+from discord.utils import get
 import random
 import asyncio
 import time
@@ -26,6 +27,10 @@ USER_GOALS = [160, 170, 180, 190, 200, 210, 220, 230, 240, 250]
 HELPER_STATUS = 15
 HELPER_ROLE_NAME = "helper"
 help_vote_activ = {}
+
+skill_stuff_messages_ids = []
+skill_emojis = {"👒": "Discord Ext", "🐢": "Python", "🚀": "C++", "🌍": "Web-Development", "🚋": "Java", "🏃": "C#", "💻": "Linux", "📟": "Raspberry"}
+emoji_list = []
 
 
 reaction_msg_stuff = {"role_msg_id": None, "role_msg_user_id": None, "r_role_msg_id": None, "r_role_msg_user_id": None}
@@ -151,7 +156,7 @@ async def on_message(message):
             embed = generate_embed(message.author, LEVEL)
             await client.send_message(message.channel, embed=embed)
         if author_xp < 800 and author_levels == 6:
-            set_level(message.author.id, 5)
+            await set_level(message.author.id, 5)
         if author_xp >= 1100 and author_levels <= 6:
             LEVEL = 7
             await set_level(message.author.id, LEVEL)
@@ -325,6 +330,19 @@ async def on_message(message):
     if message.content.lower().startswith("!r_role") and author_levels < 2:
         await client.send_message(message.channel, "Sorry, du musst mindestens Level 2 sein!")
 
+    if message.content.lower().startswith("!skill"):
+        emoji_list = []
+        msg = "```\nBitte waehle deinen skill aus einer der folgenden rollen:\n\n"
+        for emoji, name in skill_emojis.items():
+            msg += "\t{} -> {}\n".format(emoji, name)
+            emoji_list.append(emoji)
+        msg += "```"
+        reaction_msg = await client.send_message(message.channel, msg)
+        for emoji in emoji_list:
+            await client.add_reaction(reaction_msg, emoji)
+
+        skill_stuff_messages_ids.append(reaction_msg.id)
+
     if message.content.lower().startswith("!myrole"):
         myrole = await get_myrole(message.author.id)
         if myrole is not None:
@@ -338,17 +356,20 @@ async def on_message(message):
                 )
                 await client.send_message(message.channel, embed=embed)
             else:
-                text_in = message.content
-                hex_color_raw = str(text_in[text_in.find("(") + 1:text_in.find(")")])[1:]
-                hex_color = int(''.join("0x") + hex_color_raw, 16)
-                myrole_c = discord.Colour(hex_color)
+                try:
+                    text_in = message.content
+                    hex_color_raw = str(text_in[text_in.find("(") + 1:text_in.find(")")])[1:]
+                    hex_color = int(''.join("0x") + hex_color_raw, 16)
+                    myrole_c = discord.Colour(hex_color)
 
-                for role in message.server.roles:
-                    if role.name == myrole:
-                        await client.edit_role(message.server, role, color=myrole_c)
-                        await client.move_role(message.server, role, 17)
-                        await client.send_message(message.channel, "Role updated!")
-                        break
+                    for role in message.server.roles:
+                        if role.name == myrole:
+                            await client.edit_role(message.server, role, color=myrole_c)
+                            await client.move_role(message.server, role, 17)
+                            await client.send_message(message.channel, "Role updated!")
+                            break
+                except:
+                    await client.send_message(message.channel, "Upsi Wupsi something happend schubsi dubsi")
         else:
             embed = discord.Embed(
                 title="Myrole Setup",
@@ -688,6 +709,13 @@ async def on_message(message):
 async def on_reaction_add(reaction, user):
     msgid = reaction.message.id
     try:
+
+        if msgid in skill_stuff_messages_ids:
+            for emoji, name in skill_emojis.items():
+                if reaction.emoji == emoji:
+                    role = get(reaction.message.server.roles, name=name)
+                    await client.add_roles(user, role)
+
         # ADD ROLES
         if reaction.emoji == '🐤' and msgid == reaction_msg_stuff["role_msg_id"] and user.id == reaction_msg_stuff["role_msg_user_id"]:
             for role in reaction.message.server.roles:
