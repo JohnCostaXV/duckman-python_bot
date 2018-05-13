@@ -22,7 +22,7 @@ db = database.DataBase()
 MYROLE_COST = 250
 BOTCOLOR = 0x547e34
 RANDOM_STATUS = ["!help", "Quack", "1337", "Duck you!", "I'm Batm... eh Duckman!", "Luke, i'm your duck", "!gamble"
-                 , "!github", "gwo.io/", "I like {}".format("Python")]
+                 , "!github", "gwo.io/", "I like Python"]
 USER_GOALS = [160, 170, 180, 190, 200, 210, 220, 230, 240, 250]
 HELPER_STATUS = 15
 HELPER_ROLE_NAME = "helper"
