@@ -29,7 +29,7 @@ HELPER_ROLE_NAME = "helper"
 help_vote_activ = {}
 
 skill_stuff_messages_ids = []
-skill_emojis = {"👒": "Discord Ext", "🐢": "Python", "🚀": "C++", "🌍": "Web-Development", "🚋": "Java", "🏃": "C#", "💻": "Linux", "📟": "Raspberry"}
+skill_emojis = {"👒": "Discord Ext", "🐢": "Python", "🚀": "C++", "🌍": "Web-Development", "🚋": "Java", "🏃": "C#", "💻": "Linux", "📟": "Raspberry", "▶": "Golang"}
 emoji_list = []
 
 
@@ -289,6 +289,10 @@ async def on_message(message):
         embed.add_field(
             name="Gamble's Lost",
             value=gamble_data["lost"]
+        )
+        embed.add_field(
+            name="Helper Votes:",
+            value=await get_helper_votes(message.author.id)
         )
         await client.send_message(message.channel, embed=embed)
 
