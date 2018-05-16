@@ -29,7 +29,7 @@ HELPER_ROLE_NAME = "helper"
 help_vote_activ = {}
 
 skill_stuff_messages_ids = []
-skill_emojis = {"👒": "Discord Ext", "🐢": "Python", "🚀": "C++", "🌍": "Web-Development", "🚋": "Java", "🏃": "C#", "💻": "Linux", "📟": "Raspberry"}
+skill_emojis = {"👒": "Discord Ext", "🐢": "Python", "🚀": "C++", "🌍": "Web-Development", "🚋": "Java", "🏃": "C#", "💻": "Linux", "📟": "Raspberry", "▶": "Golang"}
 emoji_list = []
 
 
@@ -241,22 +241,30 @@ async def on_message(message):
         embed = discord.Embed(
             title="__**Current Commands**__",
             color=BOTCOLOR,
-            description="**> !help**\n"
-                        "**> !role**\n"
-                        "**> !r_role**\n"
-                        "**> !xp**\n"
-                        "**> !xp @username @username2 @username3...**\n"
-                        "**> !lb**\n"
-                        "**> !github**\n"
-                        "**> !ping**\n"
-                        "**> !gamble ~HIER_XP~**\n"
-                        "**> !who**\n"
-                        "**> !level**\n"
-                        "**> !avg_xp**\n"
-                        "**> !me**\n"
-                        "**> !tut_code**\n"
-                        "**> !v_helper @username**\n",
             url="https://gwo.io"
+        )
+        embed.add_field(name="General Commands",
+        value="**!help** - Sends this message\n"
+              "**!github** - Duckman's Github repository\n"
+              "**!ping** - Get Duckman's ping\n"
+              "**!who** - Shows how many people are on the server\n"
+              "**!tut_code** - Links to the tutorial code\n"
+              "**!gamble** - Gamble & win XP"
+        )
+        embed.add_field(name="User Commands",
+        value="**!xp** - See your XP\n"
+              "**!xp @username @username2 @username3...** - See the XP of multiple people\n"
+              "**!lb** - XP leaderboard\n"
+              "**!level** - See your level\n"
+              "**!avg_xp** - See the average XP\n"
+              "**!me** - See information about yourself\n"
+              "**!v_helper** - Vote for someone to become helper"
+        )
+        embed.add_field(name="Role Commands",
+        value="**!role** - Set your roles\n"
+              "**!r_role** - Remove your roles\n"
+              "**!myrole** - Set your color role\n"
+              "**!skill** - Set your skills"
         )
         embed.set_footer(text="Mainly developed by Grewoss | Avatar design by Grassmou")
         embed.set_thumbnail(url=client.user.avatar_url)
@@ -289,6 +297,10 @@ async def on_message(message):
         embed.add_field(
             name="Gamble's Lost",
             value=gamble_data["lost"]
+        )
+        embed.add_field(
+            name="Helper Votes:",
+            value=await get_helper_votes(message.author.id)
         )
         await client.send_message(message.channel, embed=embed)
 
